@@ -35,9 +35,9 @@ async function handleFormSubmit(event) {
         snippet_id: formData.get("snippet_id"),
         title: formData.get("title"),
         language: formData.get("language"),
-        tags: formData.get("tags"),
-        content: formData.get("content"),
-        notes: formData.get("notes"),
+        prefix: formData.get("prefix"),
+        body: formData.get("body"),
+        description: formData.get("description"),
     };
     const response = await fetch("/snippet-creation", {
         method: "POST",

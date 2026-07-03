@@ -71,9 +71,11 @@ async function deleteSnippet() {
 function buildCard(indexPosition) {
     current_snip = all_snips[indexPosition];
     const title = document.querySelector("#title");
-    const content = document.querySelector("#content");
+    const prefix = document.querySelector("#prefix")
+    const body = document.querySelector("#body");
     title.textContent = current_snip.title;
-    content.textContent = current_snip.content;
+    prefix.textContent = current_snip.prefix;
+    body.textContent = current_snip.body;
 
     emptyState.hidden = true;
     displayCard.hidden = false;

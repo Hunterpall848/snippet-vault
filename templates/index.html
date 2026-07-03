@@ -9,18 +9,8 @@
         <main>
             <header>
                 <h1> Snippets </h1>
-                <h4> Collection of user saved snippets </h4>
+                <h3> Collection of user saved snippets </h4>
             </header>
-            <div>
-                {% if snippets  %}
-                    <h2> Saved Snips </h2>
-                    {% for snip in snippets %}
-                        <h3> Title: {{ snip.title }} </h3>
-                        <p> Language: {{ snip.language }} </p>
-                        <p> Content: {{ snip.content }} </p>
-                    {% endfor %}
-                {% endif %}
-            </div>
             <nav>
                 <h3><a href="snippet-creation"> New Snippet </a></h3>
                 <h3><a href="saved-snippets"> Saved Snippets </a></h3>

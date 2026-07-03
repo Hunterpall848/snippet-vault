@@ -7,8 +7,8 @@ connection = sqlite3.connect("snippets_app.db")
 cursor = connection.cursor()
 
 
-valid_fields = {"snippet_id","title", "language", "tags", "content", "notes"}
-required_fields = {"title", "language", "content"}
+valid_fields = {"snippet_id","title", "language", "prefix", "body", "description"}
+required_fields = {"title", "prefix", "language", "body"}
 
 
 cursor.execute("""
@@ -16,9 +16,9 @@ cursor.execute("""
         snippet_id INTEGER PRIMARY KEY,
         title TEXT NOT NULL,
         language TEXT NOT NULL,
-        tags TEXT,
-        content TEXT NOT NULL,
-        notes TEXT
+        prefix TEXT,
+        body TEXT NOT NULL,
+        description TEXT
     );
 """)
 connection.commit()
@@ -37,7 +37,7 @@ def delete_snippet_from_db():
         connection.close()
         return "Snippet deleted.", 204
     return "Snippet_id not detected.", 400
-    #could add a delete all option
+
 
 def write_snippet_to_db(snip):
     connection = sqlite3.connect("snippets_app.db")
@@ -46,17 +46,17 @@ def write_snippet_to_db(snip):
         INSERT INTO snippets (
             title,
             language,
-            tags,
-            content,
-            notes
+            prefix,
+            body,
+            description
         )    
         VALUES(?, ?, ?, ?, ?)
     """, ( 
           snip["title"],
           snip["language"],
-          snip["tags"],
-          snip["content"],
-          snip["notes"]
+          snip["prefix"],
+          snip["body"],
+          snip["description"]
     ))
     connection.commit()
     connection.close()
@@ -89,7 +89,7 @@ def snippet_creation():
         new_snip = request.get_json()
         submitted_fields = set(new_snip)
 
-        # form validation to ensure consistent db format
+        #using sets for form validation
         missing_fields = required_fields - submitted_fields
         if missing_fields:
             return ("Missing required fields.", 400)
@@ -115,7 +115,6 @@ def saved_snippets():
         return render_template("saved-snippets.html", snip_dict=snip_dict)
     return delete_snippet_from_db()
     
-
 
 @app.get("/api/snippets")
 def get_snip_json():

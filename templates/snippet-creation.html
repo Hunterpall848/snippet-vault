@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title> New Snippet </title>
+        <script src="/static/snippet-creation.js" defer></script>
+    </head>
+
+    <body>
+        <form method="post" action="/snippet-creation" id="new-snip-form">
+            <div class="form-title">
+                <label for="title"> Title </label>
+                <input id="title" name="title" required>
+            </div>
+            <div class="form-language">
+                <label for="language"> Language </label >
+                <input id="language" name="language" required>
+            </div>
+            <div class="form-tags">
+                <label for="tags"> Tags </label>
+                <input id="tags" name="tags">
+            </div>
+            <div class="form-content">
+                <label for="content"> Content </label>
+                <textarea id="content" name="content" required></textarea>
+            </div>
+            <div class="form-notes">
+                <label for="notes"> Notes </label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+            <div>
+                <button type="submit" id="form-submit-button"> Finish </button>
+            </div>
+        </form>
+
+        <h2> Saved Snippets </h2>
+        <ul id="snippet-titles">
+            {% for snip in snip_dict %}
+            <li><a href="/saved-snippets#snippet-{{ snip.snippet_id }}">
+                    {{ snip.title }}
+            </a></li>
+            {% endfor %}
+        </ul>
+
+    </body>
+</html>

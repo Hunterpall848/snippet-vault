@@ -1,15 +1,12 @@
 import sqlite3
 from flask import Flask, render_template, request, jsonify
 
-
 app = Flask(__name__)
 connection = sqlite3.connect("snippets_app.db")
 cursor = connection.cursor()
 
-
 valid_fields = {"snippet_id","title", "language", "prefix", "body", "description"}
 required_fields = {"title", "prefix", "language", "body"}
-
 
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS snippets (
@@ -24,7 +21,6 @@ cursor.execute("""
 connection.commit()
 connection.close()
 
-
 def delete_snippet_from_db():
     snippet_id = request.args.get("snippet_id")
 
@@ -34,11 +30,11 @@ def delete_snippet_from_db():
         cursor.execute("DELETE FROM snippets WHERE snippet_id = ?",
             (snippet_id,)
         )
+
         connection.commit()
         connection.close()
         return "Snippet deleted.", 204
     return "Snippet_id not detected.", 400
-
 
 def write_snippet_to_db(snip):
     connection = sqlite3.connect("snippets_app.db")
@@ -62,20 +58,18 @@ def write_snippet_to_db(snip):
     connection.commit()
     connection.close()
 
-
 def read_snip_db():
     connection = sqlite3.connect("snippets_app.db")
-    # configures the connection obj row_factory property to format
-    # in a key : value format using Row property from sqlite3 obj
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
+
     cursor.execute("""
         SELECT *
         FROM snippets
     """)
     all_rows = cursor.fetchall()
     connection.close()
-    # returns a dictionary
+
     return [dict(row) for row in all_rows] 
 
 #########################################
@@ -83,7 +77,6 @@ def read_snip_db():
 @app.get("/")
 def home():
     return render_template("index.html")
-
 
 @app.route("/snippet-creation", methods=["GET","POST"])
 def snippet_creation():
@@ -109,14 +102,13 @@ def snippet_creation():
     snip_dict = read_snip_db()
     return render_template("snippet-creation.html", snip_dict=snip_dict)
 
-
-@app.route("/saved-snippets", methods=["GET","DELETE"])
+@app.route("/view-snippets", methods=["GET","DELETE"])
 def saved_snippets():
     if request.method == "GET":
-        return render_template("saved-snippets.html")
+        return render_template("view-snippets.html")
     return delete_snippet_from_db()
     
-@app.route("/saved-snippets", methods=[])
+@app.route("/edit-snippets")
 def edit_snippets():
     return render_template("edit-snippets.html")
 

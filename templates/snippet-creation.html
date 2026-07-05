@@ -36,7 +36,7 @@
         <h2> Saved Snippets </h2>
         <ul id="snippet-titles">
             {% for snip in snip_dict %}
-            <li><a href="/saved-snippets#snippet-{{ snip.snippet_id }}">
+            <li><a href="/view-snippets?snippetid={{ snip.snippet_id }}">
                     {{ snip.title }}
             </a></li>
             {% endfor %}

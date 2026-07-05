@@ -27,6 +27,7 @@ connection.close()
 
 def delete_snippet_from_db():
     snippet_id = request.args.get("snippet_id")
+
     if snippet_id:
         connection = sqlite3.connect("snippets_app.db")
         cursor = connection.cursor()
@@ -77,6 +78,7 @@ def read_snip_db():
     # returns a dictionary
     return [dict(row) for row in all_rows] 
 
+#########################################
 
 @app.get("/")
 def home():
@@ -111,10 +113,12 @@ def snippet_creation():
 @app.route("/saved-snippets", methods=["GET","DELETE"])
 def saved_snippets():
     if request.method == "GET":
-        snip_dict = read_snip_db()
-        return render_template("saved-snippets.html", snip_dict=snip_dict)
+        return render_template("saved-snippets.html")
     return delete_snippet_from_db()
     
+@app.route("/saved-snippets", methods=[])
+def edit_snippets():
+    return render_template("edit-snippets.html")
 
 @app.get("/api/snippets")
 def get_snip_json():

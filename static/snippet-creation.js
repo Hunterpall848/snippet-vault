@@ -1,12 +1,12 @@
 // source script for the snippet-creation template
 // js overrides and handles form POST
 let formButton = document.querySelector("#form-submit-button")
-all_snips = []
+allSnips = []
 
 
 async function getJsonData () {
    const response = await fetch("/api/snippets");
-    all_snips = await response.json();
+    allSnips = await response.json();
 }
 
 
@@ -15,10 +15,10 @@ async function addNewTitleLink () {
 
     const listItem = document.createElement("li");
     const link = document.createElement("a");
-    const lastSnip = all_snips[all_snips.length - 1]
+    const lastSnip = allSnips[allSnips.length - 1]
 
     link.textContent = lastSnip.title;
-    link.href =`/saved-snippets#snippet-${lastSnip.snippet_id}`;
+    link.href =`/saved-snippets?snippetid=${lastSnip.snippet_id}`;
 
     listItem.append(link);
     newSnipEntry.append(listItem);

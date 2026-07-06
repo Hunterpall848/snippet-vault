@@ -1,3 +1,5 @@
+import {getSnipJson, snippetList} from "./snippet-utils.js";
+
 const buttonNext = document.querySelector("#next");
 const buttonPrev = document.querySelector("#prev");
 const displayCard = document.querySelector("#display-card")
@@ -5,38 +7,42 @@ const emptyState = document.querySelector("#empty-state");
 const snippetElementDiv = document.querySelector("#snippet-button-list");
 
 let allSnips = [];
-let currentSnip = {};
 let indexPosition = 0;
 
+function getCurrentSnippet() {
+    return allSnips[indexPosition]
+}
+
 async function initViewPage() {
-    allSnips = await getSnipJson();
+    allSnips = await getSnipJson(); //need
 
     const urlQueryValues = new URLSearchParams(window.location.search);
     const snippetIdParam = urlQueryValues.get("snippetid");
     const snippetIdFromUrl = snippetIdParam ? Number(snippetIdParam) : null;
 
-    if (allSnips.length == 0) {
+    if (allSnips.length == 0) { //need
         displayCard.hidden = true;
         emptyState.hidden = false;
         return;
     } 
 
     if (snippetIdFromUrl) {
-        const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl);
+        const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl); //need
+        // this checks to make sure the indexposition points to an actual value in the db
         if (matchingIndex !== -1) {
             indexPosition = matchingIndex;
         }
-        buildCard(indexPosition);
-        snippetList(allSnips, snippetElementDiv);
+        buildCard();
+        snippetList();
         return;
     };
 
-    buildCard(indexPosition);
-    snippetList(allSnips, snippetElementDiv);
+    buildCard();
+    snippetList();
  }
 
-function buildCard(indexPosition) {
-    currentSnip = allSnips[indexPosition];
+function buildCard() {
+    let currentSnip = getCurrentSnippet();
 
     const title = document.querySelector("#title");
     const prefix = document.querySelector("#prefix")
@@ -51,11 +57,12 @@ function buildCard(indexPosition) {
 
 if (buttonNext) {
     buttonNext.addEventListener("click", function() {
-        if (indexPosition == allSnips.length - 1) {
+        const lastSnippetIndex = allSnips.length-1
+        if (indexPosition == lastSnippetIndex) {
             return;
         } 
         indexPosition++;
-        buildCard(indexPosition);
+        buildCard();
     })
 }
 
@@ -65,7 +72,7 @@ if (buttonPrev) {
             return;
         }
         indexPosition--;
-        buildCard(indexPosition);
+        buildCard();
     }) 
 }
 
@@ -75,7 +82,7 @@ if (snippetElementDiv) {
             const snippetIdFromButton = Number(clickedButton.dataset.snippetId);
 
             indexPosition = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromButton);
-            buildCard(indexPosition);
+            buildCard();
     });
 }
 

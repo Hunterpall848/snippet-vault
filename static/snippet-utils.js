@@ -1,11 +1,13 @@
 
-async function getSnipJson() { 
+export async function getSnipJson() { 
     const response = await fetch("/api/snippets");
-    allSnips = await response.json();
-    return allSnips;
+    return await response.json();
+    
 }
 
-function snippetList(allSnips, snippetElementDiv) {
+export async function snippetList() {
+    const snippetElementDiv = document.querySelector("#snippet-button-list");
+    const allSnips = await getSnipJson()
     allSnips.forEach((snippet) => {
         const buttonElement = document.createElement("button");
         

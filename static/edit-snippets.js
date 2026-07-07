@@ -1,59 +1,112 @@
-const buttonDel = document.querySelector("#delete");
+
+import {getSnipJson, snippetList} from "./snippet-utils.js";
+
+const buttonDel = document.querySelector("#delete-button");
 const snippetElementDiv = document.querySelector("#snippet-button-list");
+const editForm = document.querySelector("#edit-snip-form");
+const emptyState = document.querySelector("#empty-state");
+let snippetIdFromButton = 0;
 
-let allSnips = [];
-let currentSnip = {};
+class EditDatabase {
 
-async function initEditPage () {
-    allSnips = await getSnipJson();
-    snippetList(allSnips, snippetElementDiv);
-}
+    constructor(getSnipJson, snippetList) {
+        this.getSnipJson = getSnipJson;
+        this.snippetList = snippetList;
+        this.allSnips = [];
+        this.editingSnip = null;
+    }
 
-async function deleteSnippet() {
-    let currentId = currentSnip.snippet_id;
-    let currentTitle = currentSnip.title;
-    let currentButtonElemnt = document.querySelector(`[data-snippet-id="${currentId}"]`);
-    const deleteWindowMessage = `
-    Delete snippet: ${currentTitle}?
+    async initPage() {
+        this.allSnips = await this.getSnipJson();
+        this.snippetList();
 
-    This action cannot be undone.`;
+        if (this.allSnips.length == 0) {
+            editForm.hidden = true;
+            emptyState.hidden = false;
+            return;
+        }
+    }
 
-    const userDeleteConfirmation = confirm(deleteWindowMessage);
-    if (!userDeleteConfirmation) {
-        return;
+    async buildEditForm(snippetIdFromButton) {
+        const response = await fetch(`/edit-snippets/api${snippetIdFromButton}`);
+        this.editingSnip = await response.json();
+        return this.editingSnip;
+    }
+
+    loadSnippetIntoForm(editingSnippet) {
+        const titleInput = document.querySelector("#title");
+        const languageInput = document.querySelector("#language");
+        const prefixInput = document.querySelector("#prefix");
+        const bodyInput = document.querySelector("#body");
+        const descriptionInput = document.querySelector("#description");
+
+        titleInput.value = editingSnippet.title;
+        languageInput.value = editingSnippet.language;
+        prefixInput.value = editingSnippet.prefix;
+        bodyInput.value = editingSnippet.body;
+        descriptionInput.value = editingSnippet.description || "";
+        editForm.hidden = false;
+    }
+
+    async deleteSnippet() {
+        if (!this.editingSnip) {
+            return;
+        }
+
+        let currentId = this.editingSnip.snippet_id;
+        let currentTitle = this.editingSnip.title;
+        let currentButtonElement = document.querySelector(`[data-snippet-id="${currentId}"]`);
+
+        const deleteWindowMessage = `
+        Delete snippet: ${currentTitle}?
+
+        This action cannot be undone.`;
+
+        const userDeleteConfirmation = confirm(deleteWindowMessage);
+        if (!userDeleteConfirmation) {
+            return;
+        };
+
+        const response = await fetch (`/edit-snippets/api${currentId}?snippet_id=${currentId}`, {
+            method: "DELETE",
+        });
+        if (!response.ok) {
+            console.log("Delete failed.");
+            return;
+        };
+
+        if (currentButtonElement) {
+            currentButtonElement.remove();
+        };
+
+        this.editingSnip = null;
+        editForm.hidden = true;
+        this.allSnips = await this.getSnipJson();
+
+        if (this.allSnips.length == 0) {
+            emptyState.hidden = false;
+        }
     };
-    const response = await fetch (`/view-snippets?snippet_id=${currentId}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) {
-        console.log("Delete failed.");
-        return;
-    };
-    if (currentButtonElemnt) {
-        currentButtonElemnt.remove();
-    };
-    // reloads allSnips to update list
-    await getSnipJson();
-
-    if (indexPosition >= 0 && indexPosition < allSnips.length) {
-        buildCard(indexPosition);
-        return;
-    };
-    if (indexPosition == 0) {
-        displayCard.hidden = true;
-        emptyState.hidden=false;
-        return;
-    };
-    //ensures invalid index positions are handled
-    indexPosition = indexPosition - 1;
-    buildCard(indexPosition);
-    return;
 };
+
+if (snippetElementDiv) {
+    snippetElementDiv.addEventListener("click", async (clickEvent) => {
+        const clickedButton = clickEvent.target.closest("button");
+        if (!clickedButton) {
+            return;
+        }
+
+        snippetIdFromButton = Number(clickedButton.dataset.snippetId);
+        const editingSnippet = await editDatabase.buildEditForm(snippetIdFromButton);
+        editDatabase.loadSnippetIntoForm(editingSnippet);
+    });
+}
 
 if (buttonDel) {
     buttonDel.addEventListener("click", function() {
-        deleteSnippet()
+        editDatabase.deleteSnippet()
     })
 }
 
-initEditPage();
+const editDatabase = new EditDatabase(getSnipJson, snippetList);
+editDatabase.initPage();

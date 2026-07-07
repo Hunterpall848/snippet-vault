@@ -58,7 +58,7 @@ def write_snippet_to_db(snip):
     connection.commit()
     connection.close()
 
-def read_snip_db():
+def read_snip_db(snippet_id=None):
     connection = sqlite3.connect("snippets_app.db")
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
@@ -68,9 +68,24 @@ def read_snip_db():
         FROM snippets
     """)
     all_rows = cursor.fetchall()
-    connection.close()
 
-    return [dict(row) for row in all_rows] 
+    if snippet_id:
+        matching_snippet = next(
+            (
+                current_snippet
+                for current_snippet in all_rows
+                if current_snippet["snippet_id"] == snippet_id
+            ),
+            None
+        )
+        connection.close()
+        if matching_snippet:
+            return dict(matching_snippet)
+        return None
+
+    connection.close()
+    return [dict(row) for row in all_rows]
+
 
 #########################################
 
@@ -102,15 +117,20 @@ def snippet_creation():
     snip_dict = read_snip_db()
     return render_template("snippet-creation.html", snip_dict=snip_dict)
 
-@app.route("/view-snippets", methods=["GET","DELETE"])
+@app.route("/view-snippets")
 def saved_snippets():
-    if request.method == "GET":
-        return render_template("view-snippets.html")
-    return delete_snippet_from_db()
+    return render_template("view-snippets.html")
     
-@app.route("/edit-snippets")
-def edit_snippets():
+@app.get("/edit-snippets")
+def load_edit_snippets():
     return render_template("edit-snippets.html")
+
+@app.route("/edit-snippets/api<int:snippet_id>", methods=["GET","DELETE"])
+def edit_snippets(snippet_id):
+    if request.method == "GET":
+        editing_snip = read_snip_db(snippet_id)
+        return jsonify(editing_snip)
+    return delete_snippet_from_db()
 
 @app.get("/api/snippets")
 def get_snip_json():

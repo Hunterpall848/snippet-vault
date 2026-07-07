@@ -1,10 +1,10 @@
+import {getSnipJson, handleFormSubmit} from "./snippet-utils.js"
+
 let formButton = document.querySelector("#form-submit-button")
+let allSnips = []
 
-allSnips = []
-
-async function getJsonData () {
-   const response = await fetch("/api/snippets");
-    allSnips = await response.json();
+async function initSnipCreationPage() {
+    allSnips = await getSnipJson()
 }
 
 async function addNewTitleLink () {
@@ -21,38 +21,9 @@ async function addNewTitleLink () {
     newSnipEntry.append(listItem);
 }
 
-async function handleFormSubmit(event) {
-    event.preventDefault();
-    const form = document.querySelector("#new-snip-form")
-    const formData = new FormData(form)
+formButton.addEventListener("click", async function(event) {
+    allSnips = await handleFormSubmit(event, "/snippet-creation");
+    addNewTitleLink()
+})
 
-    const grabSnippetForm = {
-        snippet_id: formData.get("snippet_id"),
-        title: formData.get("title"),
-        language: formData.get("language"),
-        prefix: formData.get("prefix"),
-        body: formData.get("body"),
-        description: formData.get("description"),
-    };
-
-    const response = await fetch("/snippet-creation", {
-        method: "POST",
-        headers: {
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify(grabSnippetForm),
-    })
-    if (!response.ok) {
-        console.log("Save failed.");
-        return;
-    }
-
-    await getJsonData()
-    addNewTitleLink();
-    form.reset();
-    return;
-}
-
-formButton.addEventListener("click", handleFormSubmit)
-
-
+initSnipCreationPage()

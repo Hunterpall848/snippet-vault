@@ -14,20 +14,20 @@ function getCurrentSnippet() {
 }
 
 async function initViewPage() {
-    allSnips = await getSnipJson(); //need
+    allSnips = await getSnipJson();
 
     const urlQueryValues = new URLSearchParams(window.location.search);
     const snippetIdParam = urlQueryValues.get("snippetid");
     const snippetIdFromUrl = snippetIdParam ? Number(snippetIdParam) : null;
 
-    if (allSnips.length == 0) { //need
+    if (allSnips.length == 0) {
         displayCard.hidden = true;
         emptyState.hidden = false;
         return;
     } 
 
     if (snippetIdFromUrl) {
-        const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl); //need
+        const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl);
         // this checks to make sure the indexposition points to an actual value in the db
         if (matchingIndex !== -1) {
             indexPosition = matchingIndex;

@@ -2,15 +2,44 @@
 <html>
     <head>
         <meta charset="utf-8"/>
-        <script src="/static/snippet-utils.js" defer></script>
-        <script src="/static/edit-snippets.js" defer></script>
+        <script type="module" src="/static/edit-snippets.js" defer></script>
     </head>
     <body>
+        <head>
+            <h1>Edit Snippets</h1>
+        </head>
         <section>
             <div id="snippet-button-list">
-                <h3>Snips</h3>
+                <h4>Choose a Snippet to Edit</h4>
             </div>
         </section>
+
+        <form method="post" action="/edit-snippets" id="edit-snip-form" hidden>
+            <div class="form-title">
+                <label for="title"> Title </label>
+                <input id="title" name="title" required>
+            </div>
+            <div class="form-language">
+                <label for="language"> Language </label >
+                <input id="language" name="language" required>
+            </div>
+            <div class="form-prefix">
+                <label for="prefix"> prefix </label>
+                <input id="prefix" name="prefix" required>
+            </div>
+            <div class="form-body">
+                <label for="body"> body </label>
+                <textarea id="body" name="body" required></textarea>
+            </div>
+            <div class="form-description">
+                <label for="description"> description </label>
+                <textarea id="description" name="description"></textarea>
+            </div>
+            <div>
+                <button type="submit" id="form-submit-button"> Finish </button>
+                <button type="button" id="delete-button">Delete</button>
+            </div>
+        </form>
 
         <div id="empty-state" hidden>
             <h2>No Snippets Found</h2>

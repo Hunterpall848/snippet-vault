@@ -33,12 +33,12 @@ async function initViewPage() {
             indexPosition = matchingIndex;
         }
         buildCard();
-        snippetList();
+        snippetList(allSnips);
         return;
     };
 
     buildCard();
-    snippetList();
+    snippetList(allSnips);
  }
 
 function buildCard() {

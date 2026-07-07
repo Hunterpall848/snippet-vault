@@ -5,9 +5,8 @@ export async function getSnipJson() {
     
 }
 
-export async function snippetList() {
+export async function snippetList(allSnips) {
     const snippetElementDiv = document.querySelector("#snippet-button-list");
-    const allSnips = await getSnipJson()
     allSnips.forEach((snippet) => {
         const buttonElement = document.createElement("button");
         

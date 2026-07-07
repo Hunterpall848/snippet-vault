@@ -19,7 +19,7 @@ class EditDatabase {
 
     async initPage() {
         this.allSnips = await this.getSnipJson();
-        this.snippetList();
+        this.snippetList(this.allSnips);
 
         if (this.allSnips.length == 0) {
             editForm.hidden = true;
@@ -114,7 +114,7 @@ if (buttonDel) {
 formButton.addEventListener("click", async function(event) {
     event.preventDefault()
     let editedSnipId = editDatabase.editingSnip.snippet_id
-    await handleFormSubmit(
+    let freshSnips = await handleFormSubmit(
         event, 
         `/edit-snippets/api${editedSnipId}`, 
         "#edit-snip-form", 
@@ -124,7 +124,7 @@ formButton.addEventListener("click", async function(event) {
     // need to replace buttons w/ updated values
     editForm.hidden = true
     snippetElementDiv.replaceChildren()
-    editDatabase.snippetList()
+    editDatabase.snippetList(freshSnips)
 })
 
 editDatabase.initPage();

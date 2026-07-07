@@ -1,0 +1,21 @@
+from flask import Blueprint, render_template
+from db_queries import read_snip_db
+
+pages = Blueprint("page_render", __name__)
+
+@pages.get("/")
+def home():
+    return render_template("index.html")
+
+@pages.get("/view-snippets")
+def saved_snippets():
+    return render_template("view-snippets.html")
+
+@pages.get("/edit-snippets")
+def load_edit_snippets():
+    return render_template("edit-snippets.html")
+
+@pages.get("/snippet-creation")
+def snippet_creation():
+    snip_dict = read_snip_db()
+    return render_template("snippet-creation.html", snip_dict=snip_dict)

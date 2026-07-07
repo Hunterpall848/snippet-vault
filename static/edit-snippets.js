@@ -1,4 +1,3 @@
-
 import {getSnipJson, snippetList, handleFormSubmit} from "./snippet-utils.js";
 
 let formButton = document.querySelector("#form-submit-button")
@@ -29,7 +28,7 @@ class EditDatabase {
     }
 
     async getSnippetData(snippetIdFromButton) {
-        const response = await fetch(`/edit-snippets/api${snippetIdFromButton}`);
+        const response = await fetch(`/api/edit-snippets/${snippetIdFromButton}`);
         this.editingSnip = await response.json();
         return this.editingSnip;
     }
@@ -68,7 +67,7 @@ class EditDatabase {
             return;
         };
 
-        const response = await fetch (`/edit-snippets/api${currentId}?snippet_id=${currentId}`, {
+        const response = await fetch (`/api/edit-snippets/${currentId}?snippet_id=${currentId}`, {
             method: "DELETE",
         });
         if (!response.ok) {
@@ -116,7 +115,7 @@ formButton.addEventListener("click", async function(event) {
     let editedSnipId = editDatabase.editingSnip.snippet_id
     let freshSnips = await handleFormSubmit(
         event, 
-        `/edit-snippets/api${editedSnipId}`, 
+        `/api/edit-snippets/${editedSnipId}`, 
         "#edit-snip-form", 
         "PATCH"
     );

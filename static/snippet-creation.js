@@ -22,7 +22,7 @@ async function addNewTitleLink () {
 }
 
 formButton.addEventListener("click", async function(event) {
-    allSnips = await handleFormSubmit(event, "/snippet-creation");
+    allSnips = await handleFormSubmit(event, `/snippet-creation`, "#new-snip-form", "POST");
     addNewTitleLink()
 })
 

@@ -20,10 +20,13 @@ export async function snippetList() {
     });
 };
 
-export async function handleFormSubmit(event, endpoint) {
-    //endpoint must be string path matching a flask route in app.py
+/** Submits a form to the backend
+ *  @param {string} endpoint - must be a valid backend endpoint
+ *  @param {string} formName - must be an html form element
+*/
+export async function handleFormSubmit(event, endpoint, formName, method) {
     event.preventDefault();
-    const form = document.querySelector("#new-snip-form")
+    const form = document.querySelector(formName)
     const formData = new FormData(form)
 
     const grabSnippetForm = {
@@ -36,7 +39,7 @@ export async function handleFormSubmit(event, endpoint) {
     };
 
     const response = await fetch(endpoint, {
-        method: "POST",
+        method: method,
         headers: {
             "Content-Type":"application/json"
         },
@@ -48,5 +51,6 @@ export async function handleFormSubmit(event, endpoint) {
     };
 
     form.reset();
+    console.log("Save Success.");
     return await getSnipJson();
 };

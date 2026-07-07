@@ -1,6 +1,7 @@
 
-import {getSnipJson, snippetList} from "./snippet-utils.js";
+import {getSnipJson, snippetList, handleFormSubmit} from "./snippet-utils.js";
 
+let formButton = document.querySelector("#form-submit-button")
 const buttonDel = document.querySelector("#delete-button");
 const snippetElementDiv = document.querySelector("#snippet-button-list");
 const editForm = document.querySelector("#edit-snip-form");
@@ -27,7 +28,7 @@ class EditDatabase {
         }
     }
 
-    async buildEditForm(snippetIdFromButton) {
+    async getSnippetData(snippetIdFromButton) {
         const response = await fetch(`/edit-snippets/api${snippetIdFromButton}`);
         this.editingSnip = await response.json();
         return this.editingSnip;
@@ -97,10 +98,12 @@ if (snippetElementDiv) {
         }
 
         snippetIdFromButton = Number(clickedButton.dataset.snippetId);
-        const editingSnippet = await editDatabase.buildEditForm(snippetIdFromButton);
+        const editingSnippet = await editDatabase.getSnippetData(snippetIdFromButton);
         editDatabase.loadSnippetIntoForm(editingSnippet);
     });
 }
+
+const editDatabase = new EditDatabase(getSnipJson, snippetList);
 
 if (buttonDel) {
     buttonDel.addEventListener("click", function() {
@@ -108,5 +111,20 @@ if (buttonDel) {
     })
 }
 
-const editDatabase = new EditDatabase(getSnipJson, snippetList);
+formButton.addEventListener("click", async function(event) {
+    event.preventDefault()
+    let editedSnipId = editDatabase.editingSnip.snippet_id
+    await handleFormSubmit(
+        event, 
+        `/edit-snippets/api${editedSnipId}`, 
+        "#edit-snip-form", 
+        "PATCH"
+    );
+
+    // need to replace buttons w/ updated values
+    editForm.hidden = true
+    snippetElementDiv.replaceChildren()
+    editDatabase.snippetList()
+})
+
 editDatabase.initPage();

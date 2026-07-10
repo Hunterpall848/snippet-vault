@@ -1,11 +1,15 @@
 import {getSnipJson, snippetList, handleFormSubmit} from "./snippet-utils.js";
+import {TextBehavior, keyMaps, specialMaps} from "./text-area.js"
 
 let formButton = document.querySelector("#form-submit-button")
+const textArea = document.querySelector("#body");
 const buttonDel = document.querySelector("#delete-button");
 const snippetElementDiv = document.querySelector("#snippet-button-list");
 const editForm = document.querySelector("#edit-snip-form");
 const emptyState = document.querySelector("#empty-state");
 let snippetIdFromButton = 0;
+
+const textbehavior = new TextBehavior(textArea, keyMaps, specialMaps)
 
 class EditDatabase {
 
@@ -109,6 +113,9 @@ if (buttonDel) {
         editDatabase.deleteSnippet()
     })
 }
+
+//must initialize eventlistener on textarea form section
+textbehavior.init()
 
 formButton.addEventListener("click", async function(event) {
     event.preventDefault()

@@ -6,6 +6,11 @@
         <script type="module" src="/static/snippet-creation.js" defer></script>
     </head>
 
+    <nav>
+     <a href="/">Home</a> |
+     <a href="/edit-snippets">Edit Snippets</a>
+    </nav>
+
     <body>
         <form method="post" action="/snippet-creation" id="new-snip-form">
             <div class="form-title">
@@ -33,7 +38,7 @@
             </div>
         </form>
 
-        <h2> Saved Snippets </h2>
+        <h2> View Snippets </h2>
         <ul id="snippet-titles">
             {% for snip in snip_dict %}
             <li><a href="/view-snippets?snippetid={{ snip.snippet_id }}">

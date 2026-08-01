@@ -1,16 +1,19 @@
 export const keyMaps = [
     {
         trigger: '"', 
-        replacement: '"\\'
+        replacement: '"\\',
+        default: '"', 
     },
     {
         //js reads this as trigger = \ and replacement = \\
         trigger: "\\",
-        replacement: "\\\\"
+        replacement: "\\\\",
+        default: "\\",
     },
     {
         trigger: "$i", //where i is an int
-        replacement: "${i:value}"
+        replacement: "${i:value}",
+        default: "<placeholder>",
     },
 ];
 
@@ -18,10 +21,12 @@ export const specialMaps = [
     {
         trigger: "Tab",
         replacement: "\\t",
+        default: "\t",
     },
     {
         trigger: "Enter",
         replacement: "\\n",
+        default: "\n",
     },
 ]
 
@@ -63,6 +68,11 @@ export class TextBehavior {
             //must pass null here to force argument into position
             this.insertText(null, validSpecialMap);
             return;
+        });
+
+        this.textArea.addEventListener("input", () => {
+            const currentTextArea = this.textArea.value;
+            this.generatePreviewText(currentTextArea);
         });
     };
     
@@ -129,6 +139,23 @@ export class TextBehavior {
 
         this.textArea.selectionStart = newCursorPosition;
         this.textArea.selectionEnd = newCursorPosition;
+    }
+
+    generatePreviewText (formBodyText) {
+        const previewText = document.querySelector("#snippet-preview-area") 
+        let defaultFormatText = formBodyText;
+
+        keyMaps.forEach(map => {
+            defaultFormatText = 
+                defaultFormatText.replaceAll(map.replacement,map.default);
+        });
+
+        specialMaps.forEach(map => {
+            defaultFormatText = 
+                defaultFormatText.replaceAll(map.replacement,map.default);
+        });
+        previewText.textContent = defaultFormatText
+        
     }
 };
 

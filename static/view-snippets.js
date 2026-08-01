@@ -13,6 +13,7 @@ function getCurrentSnippet() {
     return allSnips[indexPosition]
 }
 
+
 async function initViewPage() {
     allSnips = await getSnipJson();
 
@@ -79,6 +80,7 @@ if (buttonPrev) {
 if (snippetElementDiv) {
     snippetElementDiv.addEventListener("click", (clickEvent) => {
             const clickedButton = clickEvent.target.closest("button");
+            // need this id in order to add a way of tracking snippets to each button
             const snippetIdFromButton = Number(clickedButton.dataset.snippetId);
 
             indexPosition = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromButton);

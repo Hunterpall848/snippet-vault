@@ -19,11 +19,16 @@ export const specialMaps = [
         trigger: "Tab",
         replacement: "\\t",
     },
+    {
+        trigger: "Enter",
+        replacement: "\\n",
+    },
 ]
 
 
 export class TextBehavior {
-    
+//controls the behavior of the textarea within the "body" form section
+
     constructor(textArea, keyMaps, specialMaps) {
         this.textArea = textArea;
         this.keyMaps = keyMaps;

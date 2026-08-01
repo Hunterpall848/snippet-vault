@@ -1,22 +1,42 @@
-
 export async function getSnipJson() { 
     const response = await fetch("/api/snippets");
     return await response.json();
     
 }
 
+function presentLanguages(allsnips) {
+    const languages = new Set([]); 
+    allsnips.forEach ((snip) => {
+        languages.add(snip.language);
+    });
+    return languages;
+};
+
 export async function snippetList(allSnips) {
     const snippetElementDiv = document.querySelector("#snippet-button-list");
-    allSnips.forEach((snippet) => {
-        const buttonElement = document.createElement("button");
-        
-        buttonElement.type = "button";
-        buttonElement.textContent = snippet.title;
-        //need custom data on the button to locate correct snippet on click
-        buttonElement.dataset.snippetId = snippet.snippet_id;        
-        snippetElementDiv.appendChild(buttonElement);
-        return snippetElementDiv;
+    const allLanguages = presentLanguages(allSnips);
+
+    allLanguages.forEach ((lang) => {
+        const languageSection = document.createElement("section");
+        const languageHeading = document.createElement("h5");
+        languageHeading.textContent = lang;
+        languageSection.appendChild(languageHeading);
+
+        allSnips.forEach ((snip) => {
+            if (snip.language === lang) {
+                const buttonElement = document.createElement("button");
+                
+                buttonElement.type = "button";
+                buttonElement.textContent = snip.title;
+                //need custom data on the button to locate correct snippet on click
+                buttonElement.dataset.snippetId = snip.snippet_id;        
+                languageSection.appendChild(buttonElement);
+                
+            };
+        });
+        snippetElementDiv.appendChild(languageSection);
     });
+    return snippetElementDiv;
 };
 
 /** Submits a form to the backend

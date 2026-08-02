@@ -6,10 +6,6 @@ pages = Blueprint("page_render", __name__)
 
 @pages.get("/")
 def home():
-    return render_template("index.html")
-
-@pages.get("/view-snippets")
-def saved_snippets():
     return render_template("view-snippets.html")
 
 @pages.get("/edit-snippets")

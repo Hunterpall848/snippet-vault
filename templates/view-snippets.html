@@ -12,25 +12,33 @@
         <a href="/api/snippets">Json Snippets</a>
     </nav> 
 
-    <body>
-       <main id="display-card" hidden>
-           <h2 id="title"></h2>
-           <h3 id="prefix"></h3>
-           <p id="body"></p>
-            <div id="nav-buttons">
-               <button type="Button" id="prev">Previous</button>
-               <button type="Button" id="next">Next</button>
+    <div id="main-page">
+        <header>
+            <h1><code>Snippet Vault</code></h3>
+        </header>
+
+        <body>
+            <div>
+                <h4 id="title"><code></code></h3>
+                <h5 id="prefix"><code></code></h4>
             </div>
-        </main> 
+           <main id="display-card" hidden>
+                <div id="nav-buttons">
+                   <button type="Button" id="prev">Previous</button>
+                   <button type="Button" id="next">Next</button>
+                   <button type="Button" id="copy-json">Copy (placeholder)</button>
+                </div>
+               <pre id="body"><code></code></pre>
+            </main> 
 
-        <h3>Snips</h3>
-        <section>
-            <div id="snippet-button-list"> </div>
-        </section>
+            <section>
+                <div id="snippet-button-list"> </div>
+            </section>
 
-        <div id="empty-state" hidden>
-            <h2>No Snippets Found</h2>
-            <h3><a href="snippet-creation">Make New Snippet</a></h3>
-        </div>
-    </body>
+            <div id="empty-state" hidden>
+                <h2>No Snippets Found</h2>
+                <h3><a href="snippet-creation">Make New Snippet</a></h3>
+            </div>
+        </body>
+    </div>
 </html>

@@ -13,34 +13,41 @@ function getCurrentSnippet() {
     return allSnips[indexPosition]
 }
 
-
-async function initViewPage() {
-    allSnips = await getSnipJson();
-
+function handleUrlParsing (allSnips) {
     const urlQueryValues = new URLSearchParams(window.location.search);
     const snippetIdParam = urlQueryValues.get("snippetid");
     const snippetIdFromUrl = snippetIdParam ? Number(snippetIdParam) : null;
-
-    if (allSnips.length == 0) {
-        displayCard.hidden = true;
-        emptyState.hidden = false;
-        return;
-    } 
 
     if (snippetIdFromUrl) {
         const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl);
         // this checks to make sure the indexposition points to an actual value in the db
         if (matchingIndex !== -1) {
             indexPosition = matchingIndex;
-        }
-        buildCard();
-        snippetList(allSnips);
+            return;
+        };
         return;
     };
+};
 
-    buildCard();
+async function initViewPage() {
+    allSnips = await getSnipJson();
+
+    if (allSnips.length == 0) {
+        displayCard.hidden = true;
+        emptyState.hidden = false;
+        return;
+    }; 
+
+    handleUrlParsing(allSnips);
     snippetList(allSnips);
- }
+    buildCard();
+    return;
+};
+
+function refactorSnippetJson () {
+// TODO: refactor the snippet from getCurrentSnippet() to be in proper snippet format before
+    // being passed to buildCard()
+};
 
 function buildCard() {
     let currentSnip = getCurrentSnippet();

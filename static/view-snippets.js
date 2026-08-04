@@ -45,12 +45,19 @@ async function initViewPage() {
 };
 
 function refactorSnippetJson () {
-// TODO: refactor the snippet from getCurrentSnippet() to be in proper snippet format before
-    // being passed to buildCard()
+    let defaultSnippet = getCurrentSnippet();
+    let snippetTitle = defaultSnippet.title;
+    let snippetBody = {
+        prefix : defaultSnippet.prefix,
+        body : defaultSnippet.body
+    };
+    let formatedSnippet = {[snippetTitle] : snippetBody};
+    return formatedSnippet;
 };
 
 function buildCard() {
     let currentSnip = getCurrentSnippet();
+    let currentSnipJson = refactorSnippetJson();
 
     const title = document.querySelector("#title");
     const prefix = document.querySelector("#prefix")
@@ -58,7 +65,7 @@ function buildCard() {
 
     title.textContent = currentSnip.title;
     prefix.textContent = currentSnip.prefix;
-    body.textContent = currentSnip.body;
+    body.textContent = JSON.stringify(currentSnipJson, null, 2);
 
     displayCard.hidden = false;
 }

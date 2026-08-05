@@ -4,7 +4,7 @@ export async function getSnipJson() {
     
 }
 
-function presentLanguages(allSnips) {
+export function presentLanguages(allSnips) {
     const languages = new Set([]); 
     allSnips.forEach ((snip) => {
         languages.add(snip.language);

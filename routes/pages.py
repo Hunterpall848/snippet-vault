@@ -14,5 +14,4 @@ def load_edit_snippets():
 
 @pages.get("/snippet-creation")
 def snippet_creation():
-    snip_dict = read_snip_db()
-    return render_template("snippet-creation.html", snip_dict=snip_dict, langs = languages)
+    return render_template("snippet-creation.html", langs = languages)

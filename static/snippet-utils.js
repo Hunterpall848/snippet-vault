@@ -4,39 +4,53 @@ export async function getSnipJson() {
     
 }
 
-function presentLanguages(allsnips) {
+function presentLanguages(allSnips) {
     const languages = new Set([]); 
-    allsnips.forEach ((snip) => {
+    allSnips.forEach ((snip) => {
         languages.add(snip.language);
     });
     return languages;
 };
 
-export async function snippetList(allSnips) {
-    const snippetElementDiv = document.querySelector("#snippet-button-list");
+export async function languageList(allSnips) {
     const allLanguages = presentLanguages(allSnips);
+    const languageElementDiv = document.querySelector("#language-button-list")
 
     allLanguages.forEach ((lang) => {
-        const languageSection = document.createElement("section");
-        const languageHeading = document.createElement("h5");
-        languageHeading.textContent = lang;
-        languageSection.appendChild(languageHeading);
-
-        allSnips.forEach ((snip) => {
-            if (snip.language === lang) {
-                const buttonElement = document.createElement("button");
-                
-                buttonElement.type = "button";
-                buttonElement.textContent = snip.title;
-                //need custom data on the button to locate correct snippet on click
-                buttonElement.dataset.snippetId = snip.snippet_id;        
-                languageSection.appendChild(buttonElement);
-                
-            };
-        });
-        snippetElementDiv.appendChild(languageSection);
+        const languageButton = document.createElement("button");
+        languageButton.textContent = lang;
+        languageButton.dataset.language = lang
+        languageElementDiv.appendChild(languageButton);
     });
-    return snippetElementDiv;
+    return languageElementDiv;
+};
+
+export async function snippetList(snips = null, lang = null) {
+    /* function requires one argument or the other, but can not take both; it will return undefined.
+     * if neither is provided it will default to the first arg => snips.*/
+    const snippetElementDiv = document.querySelector("#snippet-button-list");
+        if (lang == null) {
+            snips.forEach ((snip) => {
+                const snippetButton = document.createElement("button");
+                
+                snippetButton.type = "button";
+                snippetButton.textContent = snip.title;
+                snippetButton.dataset.snippetId = snip.snippet_id;        
+                snippetElementDiv.appendChild(snippetButton);
+            });
+            return snippetElementDiv;
+        };
+        snips.forEach ((snip) => {
+            if (snip.language === lang) {
+                const snippetButton = document.createElement("button");
+
+                snippetButton.type = "button";
+                snippetButton.textContent = snip.title;
+                snippetButton.dataset.snippetId = snip.snippet_id;        
+                snippetElementDiv.appendChild(snippetButton);
+            };
+        }); 
+        return snippetElementDiv;
 };
 
 /** Submits a form to the backend

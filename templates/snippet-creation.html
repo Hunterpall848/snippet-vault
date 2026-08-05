@@ -53,7 +53,7 @@
         <h2> View Snippets </h2>
         <ul id="snippet-titles">
             {% for snip in snip_dict %}
-            <li><a href="/view-snippets?snippetid={{ snip.snippet_id }}">
+            <li><a href="/?snippetid={{ snip.snippet_id }}">
                     {{ snip.title }}
             </a></li>
             {% endfor %}

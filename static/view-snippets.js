@@ -1,10 +1,11 @@
-import {getSnipJson, snippetList} from "./snippet-utils.js";
+import {getSnipJson, snippetList, languageList} from "./snippet-utils.js";
 
 const buttonNext = document.querySelector("#next");
 const buttonPrev = document.querySelector("#prev");
 const displayCard = document.querySelector("#display-card")
 const emptyState = document.querySelector("#empty-state");
-const snippetElementDiv = document.querySelector("#snippet-button-list");
+const languageElementDiv = document.querySelector("#language-button-list");
+const snippetElementDiv = document.querySelector("#snippet-button-list")
 
 let allSnips = [];
 let indexPosition = 0;
@@ -39,7 +40,7 @@ async function initViewPage() {
     }; 
 
     handleUrlParsing(allSnips);
-    snippetList(allSnips);
+    languageList(allSnips)
     buildCard();
     return;
 };
@@ -91,15 +92,32 @@ if (buttonPrev) {
     }) 
 }
 
-if (snippetElementDiv) {
-    snippetElementDiv.addEventListener("click", (clickEvent) => {
-            const clickedButton = clickEvent.target.closest("button");
-            // need this id in order to add a way of tracking snippets to each button
-            const snippetIdFromButton = Number(clickedButton.dataset.snippetId);
+//TODO: snippet buttons display need to be reset each lang button click they stack forever
+if (languageElementDiv) {
+    languageElementDiv.addEventListener("click", (langClickEvent) => {
+        let clickedLangButton = langClickEvent.target.closest("button");
 
-            indexPosition = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromButton);
-            buildCard();
+        if (clickedLangButton) {
+            let clickedLanguage = clickedLangButton.dataset.language;
+            snippetElementDiv.replaceChildren()
+            snippetList(allSnips, clickedLanguage);
+            return;
+        };
+        return;
     });
-}
+
+    snippetElementDiv.addEventListener("click", (snipClickEvent) => {
+        let clickedSnipButton = snipClickEvent.target.closest("button");
+        let snippetId = Number(clickedSnipButton.dataset.snippetId);
+
+        //returns the index of the index where snip.snippet_id and snippetId are a match
+        let matchingSnippet = allSnips.findIndex((snip) => {
+            return snip.snippet_id === snippetId;
+        });
+
+        indexPosition = matchingSnippet
+        buildCard()
+    });
+};
 
 initViewPage();

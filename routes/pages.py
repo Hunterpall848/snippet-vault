@@ -10,7 +10,7 @@ def home():
 
 @pages.get("/edit-snippets")
 def load_edit_snippets():
-    return render_template("edit-snippets.html")
+    return render_template("edit-snippets.html", langs = languages)
 
 @pages.get("/snippet-creation")
 def snippet_creation():

@@ -147,6 +147,14 @@ class EditDatabase {
         editForm.hidden = false;
     }
 
+    async updateEditForm() {
+        let currentSnippet = viewSnippets.getCurrentSnippet();
+        let editingSnippet = await editDatabase.getSnippetData(currentSnippet.snippet_id);
+        editDatabase.loadSnippetIntoForm(editingSnippet);
+
+        textbehavior.generatePreviewText()
+    };
+
     async deleteSnippet() {
         if (!this.editingSnip) {
             return;
@@ -232,13 +240,12 @@ if (languageElementDiv) {
 
         viewSnippets.indexPosition = matchingSnippet
         viewSnippets.buildCard()
+        editForm.hidden = true;
     });
 };
 
 editSnippetButton.addEventListener("click", async ()=> {
-    let currentSnippet = viewSnippets.getCurrentSnippet();
-    let editingSnippet = await editDatabase.getSnippetData(currentSnippet.snippet_id);
-    editDatabase.loadSnippetIntoForm(editingSnippet);
+    editDatabase.updateEditForm();
 });
 
 if (buttonDel) {

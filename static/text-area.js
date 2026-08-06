@@ -71,8 +71,7 @@ export class TextBehavior {
         });
 
         this.textArea.addEventListener("input", () => {
-            const currentTextArea = this.textArea.value;
-            this.generatePreviewText(currentTextArea);
+            this.generatePreviewText();
         });
     };
     
@@ -141,9 +140,9 @@ export class TextBehavior {
         this.textArea.selectionEnd = newCursorPosition;
     }
 
-    generatePreviewText (formBodyText) {
+    generatePreviewText () {
         const previewText = document.querySelector("#snippet-preview-area") 
-        let defaultFormatText = formBodyText;
+        let defaultFormatText = this.textArea.value;
 
         keyMaps.forEach(map => {
             defaultFormatText = 
@@ -155,7 +154,6 @@ export class TextBehavior {
                 defaultFormatText.replaceAll(map.replacement,map.default);
         });
         previewText.textContent = defaultFormatText
-        
     }
 };
 

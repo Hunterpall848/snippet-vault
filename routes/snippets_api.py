@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from db_queries import *
 
+# appending /api to the front of ever path in this file
 snippets = Blueprint("snippets_api",__name__, url_prefix="/api")
 
 valid_fields = {"snippet_id","title", "language", "prefix", "body", "description"}

@@ -46,6 +46,7 @@ export async function snippetList(snips = null, lang = null) {
 
                 snippetButton.type = "button";
                 snippetButton.textContent = snip.title;
+                //ties the snippet id to its button element
                 snippetButton.dataset.snippetId = snip.snippet_id;        
                 snippetElementDiv.appendChild(snippetButton);
             };

@@ -1,8 +1,41 @@
-export async function getSnipJson() { 
-    const response = await fetch("/api/snippets");
-    return await response.json();
+export class SnippetStore {
     
-}
+    constructor() {
+        this.allSnips = [];
+        this.snipIndexPosition = null; 
+    };
+
+    async refreshSnips() {
+        const response = await fetch("/api/snippets");
+        if (!response) {
+            return;
+        };
+        return this.allSnips = await response.json();
+    };
+
+    getCurrentSnippet() {
+        return this.allSnips[this.snipIndexPosition]
+    }
+
+    matchIndex(matcher=null) {
+        if (matcher) {
+            let matchingIndex = this.allSnips.findIndex((snip) => {
+                return snip.snippet_id === matcher;
+            });
+            return matchingIndex;
+        };
+        return;
+    };
+
+    updateIndexPosition(newIndex) {
+        // this checks to make sure the indexposition points to an actual value in the db
+        if (newIndex !== -1) {
+            this.snipIndexPosition = newIndex;
+            return this.snipIndexPosition;
+        };
+        return console.log(`invalid index position detected: ${newIndex}`);
+    };
+};
 
 export function presentLanguages(allSnips) {
     const languages = new Set([]); 
@@ -86,5 +119,5 @@ export async function handleFormSubmit(event, endpoint, formName, method) {
 
     form.reset();
     console.log("Save Success.");
-    return await getSnipJson();
+    return;
 };

@@ -1,15 +1,15 @@
-import {getSnipJson, handleFormSubmit, presentLanguages} from "./snippet-utils.js"
+import {handleFormSubmit, presentLanguages, SnippetStore} from "./snippet-utils.js"
 import {TextBehavior, keyMaps, specialMaps} from "./text-area.js"
-
 
 const textArea = document.querySelector("#body");
 let formButton = document.querySelector("#form-submit-button");
-let allSnips = [];
 
 const textbehavior = new TextBehavior(textArea, keyMaps, specialMaps);
+const snippetStore = new SnippetStore();
 
+//coordinates page load
 async function initSnipCreationPage() {
-    allSnips = await getSnipJson();
+    const allSnips = await snippetStore.refreshSnips() 
     createLinkList(allSnips);
 };
 
@@ -46,14 +46,16 @@ function createLinkList(allSnips) {
 };
 
 //must initialize eventlistener on textarea form section
-textbehavior.init()
+textbehavior.createEventListeners()
 
+//coordinates page submissions
 formButton.addEventListener("click", async function(event) {
-    allSnips = await handleFormSubmit(event, 
+    handleFormSubmit(event, 
         `/api/snippet-creation`, 
         "#new-snip-form", 
         "POST"
     );
+    const allSnips = await snippetStore.refreshSnips()
     createLinkList(allSnips);
 });
 

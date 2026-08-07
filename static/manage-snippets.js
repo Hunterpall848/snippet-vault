@@ -1,4 +1,4 @@
-import {getSnipJson, snippetList, languageList, handleFormSubmit} from "./snippet-utils.js";
+import {SnippetStore, snippetList, languageList, handleFormSubmit} from "./snippet-utils.js";
 import {TextBehavior, keyMaps, specialMaps} from "./text-area.js"
 
 const buttonNext = document.querySelector("#next");
@@ -13,67 +13,58 @@ const textArea = document.querySelector("#body");
 const buttonDel = document.querySelector("#delete-button");
 const editForm = document.querySelector("#edit-snip-form");
 const closeEditform = document.querySelector("#close-edit")
+const initialState = document.querySelector("#initial-state")
 
 const textbehavior = new TextBehavior(textArea, keyMaps, specialMaps)
+const snippetStore = new SnippetStore()
 
 class ViewSnippets {
 
-    constructor(getSnipJson, snippetList, languageList) {
-        this.getSnipJson = getSnipJson;
+    constructor(snippetStore, snippetList, languageList) {
+        this.snippetStore = snippetStore;
         this.snippetList = snippetList;
         this.languageList = languageList;
-        this.allSnips = [];
-        this.indexPosition = 0;
     }
 
-    getCurrentSnippet() {
-        return this.allSnips[this.indexPosition]
-    }
-
-    handleUrlParsing(allSnips) {
+    handleUrlParsing() {
         const urlQueryValues = new URLSearchParams(window.location.search);
         const snippetIdParam = urlQueryValues.get("snippetid");
         const snippetIdFromUrl = snippetIdParam ? Number(snippetIdParam) : null;
 
         if (snippetIdFromUrl) {
-            const matchingIndex = allSnips.findIndex((snip) => snip.snippet_id === snippetIdFromUrl);
-            // this checks to make sure the indexposition points to an actual value in the db
-            if (matchingIndex !== -1) {
-                this.indexPosition = matchingIndex;
-                return;
-            };
-            return;
+            const matchingIndex = snippetStore.matchIndex(snippetIdFromUrl);
+
+            this.snippetStore.updateIndexPosition(matchingIndex)
+            //returns true so that the boolean can be evaluated if there was a URL ID
+            return true;
         };
+            return;
     };
 
     async initViewPage() {
-        this.allSnips = await this.getSnipJson();
-
-        if (this.allSnips.length == 0) {
+        const allSnips = await this.snippetStore.refreshSnips()
+        if (allSnips.length == 0) {
             displayCard.hidden = true;
             emptyState.hidden = false;
             return;
         };
 
-        this.handleUrlParsing(this.allSnips);
-        this.languageList(this.allSnips)
-        this.buildCard();
+        const validationCheck = this.handleUrlParsing()
+        if (validationCheck) {
+            this.buildCard()
+            return;
+        };
+
+        initialState.hidden = false;
+        displayCard.hidden = true;
+
+        this.handleUrlParsing(allSnips);
+        this.languageList(allSnips)
         return;
     };
 
-    refactorSnippetJson() {
-        let defaultSnippet = this.getCurrentSnippet();
-        let snippetTitle = defaultSnippet.title;
-        let snippetBody = {
-            prefix: defaultSnippet.prefix,
-            body: defaultSnippet.body
-        };
-        let formatedSnippet = {[snippetTitle]: snippetBody};
-        return formatedSnippet;
-    };
-
     buildCard() {
-        let currentSnip = this.getCurrentSnippet();
+        let currentSnip = this.snippetStore.getCurrentSnippet();
         let currentSnipJson = this.refactorSnippetJson();
 
         const title = document.querySelector("#display-title");
@@ -85,33 +76,37 @@ class ViewSnippets {
         body.textContent = JSON.stringify(currentSnipJson, null, 2);
 
         displayCard.hidden = false;
+        initialState.hidden = true;
     }
 
-    updateSnippets(freshSnips, snippetId = null) {
-        this.allSnips = freshSnips;
+    refactorSnippetJson() {
+        let defaultSnippet = this.snippetStore.getCurrentSnippet();
+        let snippetTitle = defaultSnippet.title;
+        let snippetBody = {
+            prefix: defaultSnippet.prefix,
+            body: defaultSnippet.body
+        };
+        let formatedSnippet = {[snippetTitle]: snippetBody};
+        return formatedSnippet;
+    };
+
+    async updatePage(snippetId) {
+        const allSnips = await this.snippetStore.refreshSnips();
+        const matchingIndex = this.snippetStore.matchIndex(snippetId)
+        this.snippetStore.updateIndexPosition(matchingIndex)
 
         languageElementDiv.replaceChildren()
         snippetElementDiv.replaceChildren()
-        this.languageList(this.allSnips)
+        this.languageList(allSnips)
 
-        if (this.allSnips.length == 0) {
+        if (allSnips.length == 0) {
             displayCard.hidden = true;
             emptyState.hidden = false;
             return;
         };
 
-        if (snippetId) {
-            let matchingIndex = this.allSnips.findIndex((snip) => {
-                return snip.snippet_id === snippetId;
-            });
-
-            if (matchingIndex !== -1) {
-                this.indexPosition = matchingIndex;
-            };
-        };
-
-        if (this.indexPosition > this.allSnips.length - 1) {
-            this.indexPosition = this.allSnips.length - 1;
+        if (snippetStore.snipIndexPosition > snippetStore.allSnips.length - 1) {
+            snippetStore.snipIndexPosition = snippetStore.allSnips.length - 1;
         };
 
         emptyState.hidden = true;
@@ -121,16 +116,16 @@ class ViewSnippets {
 
 class EditDatabase {
 
-    constructor(getSnipJson) {
-        this.getSnipJson = getSnipJson;
-        this.editingSnip = null;
+    constructor() {
+        this.snippetStore = snippetStore;
     }
 
-    async getSnippetData(snippetId) {
-        const response = await fetch(`/api/edit-snippets/${snippetId}`);
-        this.editingSnip = await response.json();
-        return this.editingSnip;
-    }
+    async updateEditForm() {
+        let currentSnippet = this.snippetStore.getCurrentSnippet();
+        editDatabase.loadSnippetIntoForm(currentSnippet);
+
+        textbehavior.generatePreviewText()
+    };
 
     loadSnippetIntoForm(editingSnippet) {
         const titleInput = document.querySelector("#title");
@@ -147,21 +142,11 @@ class EditDatabase {
         editForm.hidden = false;
     }
 
-    async updateEditForm() {
-        let currentSnippet = viewSnippets.getCurrentSnippet();
-        let editingSnippet = await editDatabase.getSnippetData(currentSnippet.snippet_id);
-        editDatabase.loadSnippetIntoForm(editingSnippet);
-
-        textbehavior.generatePreviewText()
-    };
-
     async deleteSnippet() {
-        if (!this.editingSnip) {
-            return;
-        }
+        let currentSnippet = this.snippetStore.getCurrentSnippet();
 
-        let currentId = this.editingSnip.snippet_id;
-        let currentTitle = this.editingSnip.title;
+        let currentId = currentSnippet.snippet_id;
+        let currentTitle = currentSnippet.title;
         let currentButtonElement = document.querySelector(`[data-snippet-id="${currentId}"]`);
 
         const deleteWindowMessage = `
@@ -186,32 +171,36 @@ class EditDatabase {
             currentButtonElement.remove();
         };
 
-        this.editingSnip = null;
+        currentSnippet = null;
         editForm.hidden = true;
-        return await this.getSnipJson();
+        return;
     };
 };
 
-const viewSnippets = new ViewSnippets(getSnipJson, snippetList, languageList);
-const editDatabase = new EditDatabase(getSnipJson);
+
+const viewSnippets = new ViewSnippets(snippetStore, snippetList, languageList);
+const editDatabase = new EditDatabase(snippetStore);
+viewSnippets.initViewPage();
+//must initialize eventlistener on textarea form section
+textbehavior.createEventListeners()
 
 if (buttonNext) {
     buttonNext.addEventListener("click", function() {
-        const lastSnippetIndex = viewSnippets.allSnips.length - 1
-        if (viewSnippets.indexPosition == lastSnippetIndex) {
+        const lastSnippetIndex = snippetStore.allSnips.length - 1
+        if (snippetStore.snipIndexPosition == lastSnippetIndex) {
             return;
         }
-        viewSnippets.indexPosition++;
+        snippetStore.snipIndexPosition++;
         viewSnippets.buildCard();
     })
 }
 
 if (buttonPrev) {
     buttonPrev.addEventListener("click", function() {
-        if (viewSnippets.indexPosition == 0) {
+        if (snippetStore.snipIndexPosition == 0) {
             return;
         }
-        viewSnippets.indexPosition--;
+        snippetStore.snipIndexPosition--;
         viewSnippets.buildCard();
     })
 }
@@ -223,7 +212,7 @@ if (languageElementDiv) {
         if (clickedLangButton) {
             let clickedLanguage = clickedLangButton.dataset.language;
             snippetElementDiv.replaceChildren()
-            viewSnippets.snippetList(viewSnippets.allSnips, clickedLanguage);
+            viewSnippets.snippetList(snippetStore.allSnips, clickedLanguage);
             return;
         };
         return;
@@ -233,12 +222,9 @@ if (languageElementDiv) {
         let clickedSnipButton = snipClickEvent.target.closest("button");
         let snippetId = Number(clickedSnipButton.dataset.snippetId);
 
-        //returns the index of the index where snip.snippet_id and snippetId are a match
-        let matchingSnippet = viewSnippets.allSnips.findIndex((snip) => {
-            return snip.snippet_id === snippetId;
-        });
+        let matchingSnippet = snippetStore.matchIndex(snippetId)
+        snippetStore.updateIndexPosition(matchingSnippet)
 
-        viewSnippets.indexPosition = matchingSnippet
         viewSnippets.buildCard()
         editForm.hidden = true;
     });
@@ -250,39 +236,31 @@ editSnippetButton.addEventListener("click", async ()=> {
 
 if (buttonDel) {
     buttonDel.addEventListener("click", async() => {
-        let freshSnips = await editDatabase.deleteSnippet();
+        editDatabase.deleteSnippet();
+        snippetStore.refreshSnips()
 
-        if (!freshSnips) {
-            return;
-        }
-
-        viewSnippets.updateSnippets(freshSnips);
+        viewSnippets.updatePage();
     })
 }
 
-//must initialize eventlistener on textarea form section
-textbehavior.init()
 
 formButton.addEventListener("click", async(event) => {
     event.preventDefault()
-    let editedSnipId = editDatabase.editingSnip.snippet_id
-    let freshSnips = await handleFormSubmit(
+    let editedSnipId = snippetStore.getCurrentSnippet().snippet_id
+    await handleFormSubmit(
         event,
         `/api/edit-snippets/${editedSnipId}`,
         "#edit-snip-form",
         "PATCH"
     );
 
-    if (!freshSnips) {
-        return;
-    }
+    snippetStore.refreshSnips()
 
     editForm.hidden = true
-    viewSnippets.updateSnippets(freshSnips, editedSnipId);
+    viewSnippets.updatePage(editedSnipId);
 })
 
 closeEditform.addEventListener("click", () => {
     editForm.hidden = true;
 });
 
-viewSnippets.initViewPage();

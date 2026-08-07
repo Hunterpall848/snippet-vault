@@ -36,21 +36,26 @@
                 {{ snippet_form(langs) }} 
 
                 <div>
-                    <button type="submit" id="form-submit-button"> Finish </button>
+                    <button type="submit" id="form-submit-button">Update</button>
                     <button type="button" id="delete-button">Delete</button>
                     <button type="button" id="close-edit">Close</button>
                 </div>
             </form>
 
-            <section>
-                <div id="language-button-list"></div>
-                <div id="snippet-button-list"></div>
-            </section>
+            <div id="initial-state" hidden>
+                <h3>Select a Saved Snippet</h3>
+                <h5>using the languages bellow</h5>
+            </div>
 
             <div id="empty-state" hidden>
                 <h2>No Snippets Found</h2>
                 <h3><a href="snippet-creation">Make New Snippet</a></h3>
             </div>
+
+            <section>
+                <div id="language-button-list"></div>
+                <div id="snippet-button-list"></div>
+            </section>
         </body>
     </div>
 </html>

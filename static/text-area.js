@@ -40,7 +40,7 @@ export class TextBehavior {
         this.specialMaps = specialMaps;
     };
 
-    init() {
+    createEventListeners() {
         this.textArea.addEventListener("input", (inputEvent) => {
             //need to ensure that special keys are denied access
             if (inputEvent.inputType === "insertText") {
@@ -145,6 +145,9 @@ export class TextBehavior {
         let defaultFormatText = this.textArea.value;
 
         keyMaps.forEach(map => {
+            if (map.default === "<placeholder>") {
+                return;
+            };
             defaultFormatText = 
                 defaultFormatText.replaceAll(map.replacement,map.default);
         });

@@ -61,30 +61,31 @@ export async function languageList(allSnips) {
 export async function snippetList(snips = null, lang = null) {
     /* function requires one argument or the other, but can not take both; it will return undefined.
      * if neither is provided it will default to the first arg => snips.*/
-    const snippetElementDiv = document.querySelector("#snippet-button-list");
+    const snippetMenu = document.querySelector("#snippet-menu");
+        //used to create an unorganized general snippet menu
         if (lang == null) {
             snips.forEach ((snip) => {
-                const snippetButton = document.createElement("button");
+                const snippetOption = document.createElement("option");
                 
-                snippetButton.type = "button";
-                snippetButton.textContent = snip.title;
-                snippetButton.dataset.snippetId = snip.snippet_id;        
-                snippetElementDiv.appendChild(snippetButton);
+                snippetOption.textContent = snip.title;
+                snippetOption.value = snip.snippet_id;        
+
+                ssnippetMenu.appendChild(snippetOption);
             });
-            return snippetElementDiv;
+            return snippetMenu;
         };
+
         snips.forEach ((snip) => {
             if (snip.language === lang) {
-                const snippetButton = document.createElement("button");
+                const snippetOption = document.createElement("option");
 
-                snippetButton.type = "button";
-                snippetButton.textContent = snip.title;
-                //ties the snippet id to its button element
-                snippetButton.dataset.snippetId = snip.snippet_id;        
-                snippetElementDiv.appendChild(snippetButton);
+                snippetOption.textContent = snip.title;
+                snippetOption.value = snip.snippet_id
+
+                snippetMenu.appendChild(snippetOption);
             };
         }); 
-        return snippetElementDiv;
+        return snippetMenu;
 };
 
 /** Submits a form to the backend

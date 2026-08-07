@@ -50,7 +50,7 @@ textbehavior.createEventListeners()
 
 //coordinates page submissions
 formButton.addEventListener("click", async function(event) {
-    handleFormSubmit(event, 
+    await handleFormSubmit(event, 
         `/api/snippet-creation`, 
         "#new-snip-form", 
         "POST"

@@ -6,7 +6,7 @@ const buttonPrev = document.querySelector("#prev");
 const displayCard = document.querySelector("#display-card")
 const emptyState = document.querySelector("#empty-state");
 const languageElementDiv = document.querySelector("#language-button-list");
-const snippetElementDiv = document.querySelector("#snippet-button-list")
+const snippetMenu = document.querySelector("#snippet-menu")
 const editSnippetButton = document.querySelector("#edit-snippet")
 let formButton = document.querySelector("#form-submit-button")
 const textArea = document.querySelector("#body");
@@ -43,13 +43,16 @@ class ViewSnippets {
 
     async initViewPage() {
         const allSnips = await this.snippetStore.refreshSnips()
+
         if (allSnips.length == 0) {
             displayCard.hidden = true;
             emptyState.hidden = false;
             return;
         };
 
+        this.languageList(allSnips)
         const validationCheck = this.handleUrlParsing()
+
         if (validationCheck) {
             this.buildCard()
             return;
@@ -57,9 +60,6 @@ class ViewSnippets {
 
         initialState.hidden = false;
         displayCard.hidden = true;
-
-        this.handleUrlParsing(allSnips);
-        this.languageList(allSnips)
         return;
     };
 
@@ -96,10 +96,18 @@ class ViewSnippets {
         this.snippetStore.updateIndexPosition(matchingIndex)
 
         languageElementDiv.replaceChildren()
-        snippetElementDiv.replaceChildren()
+        snippetMenu.replaceChildren()
         this.languageList(allSnips)
 
-        if (allSnips.length == 0) {
+        //if no argument is given will revert to initial page state
+        if (!snippetId) {
+            displayCard.hidden = true;
+            initialState.hidden = false;
+            snippetMenu.hidden = true;
+            return;
+        };
+
+        if (allSnips.length === 0) {
             displayCard.hidden = true;
             emptyState.hidden = false;
             return;
@@ -211,16 +219,16 @@ if (languageElementDiv) {
 
         if (clickedLangButton) {
             let clickedLanguage = clickedLangButton.dataset.language;
-            snippetElementDiv.replaceChildren()
+            snippetMenu.replaceChildren()
             viewSnippets.snippetList(snippetStore.allSnips, clickedLanguage);
+            snippetMenu.hidden = false; 
             return;
         };
         return;
     });
 
-    snippetElementDiv.addEventListener("click", (snipClickEvent) => {
-        let clickedSnipButton = snipClickEvent.target.closest("button");
-        let snippetId = Number(clickedSnipButton.dataset.snippetId);
+    snippetMenu.addEventListener("change", (snipEvent) => {
+        let snippetId = Number(snipEvent.target.value);
 
         let matchingSnippet = snippetStore.matchIndex(snippetId)
         snippetStore.updateIndexPosition(matchingSnippet)
@@ -256,7 +264,8 @@ formButton.addEventListener("click", async(event) => {
 
     snippetStore.refreshSnips()
 
-    editForm.hidden = true
+    editForm.hidden = true;
+    snippetMenu.hidden = true;
     viewSnippets.updatePage(editedSnipId);
 })
 

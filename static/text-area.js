@@ -32,8 +32,12 @@ export const specialMaps = [
 
 
 export class TextBehavior {
-//controls the behavior of the textarea within the "body" form section
 
+    /**
+     * @param {HTMLTextAreaElement} textArea - Textarea controlled by this class.
+     * @param {Array<Object>} keyMaps - Mappings for regular character triggers.
+     * @param {Array<Object>} specialMaps - Mappings for special keyboard keys.
+     */
     constructor(textArea, keyMaps, specialMaps) {
         this.textArea = textArea;
         this.keyMaps = keyMaps;
@@ -141,7 +145,7 @@ export class TextBehavior {
     }
 
     generatePreviewText () {
-        const previewText = document.querySelector("#snippet-preview-area") 
+        const previewText = document.querySelector("#snippet-preview-area");
         let defaultFormatText = this.textArea.value;
 
         keyMaps.forEach(map => {
@@ -159,4 +163,3 @@ export class TextBehavior {
         previewText.textContent = defaultFormatText
     }
 };
-

@@ -5,7 +5,8 @@ export class SnippetStore {
     
     constructor() {
         this.allSnips = [];
-        this.snipIndexPosition = null; 
+        // this.snipIndexPosition = null; 
+        this.snipId = null;
     };
 
     async refreshSnips() {

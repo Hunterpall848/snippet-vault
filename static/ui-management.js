@@ -98,7 +98,7 @@ export class ManageUi {
         let currentSnippet = this.snippetStore.getCurrentSnippet();
         this.loadSnippetIntoForm(currentSnippet);
 
-        this.textBehavior.generatePreviewText()
+        this.textBehavior.renderPreview()
     };
 
     loadSnippetIntoForm(editingSnippet) {
@@ -237,10 +237,11 @@ export class SnippetListRenderer {
 
 export class HandleEvents {
     
-    constructor(snippetStore, manageUi, snippetListRenderer, elements) {
+    constructor(snippetStore, manageUi, snippetListRenderer, textBehavior, elements) {
         this.elements = elements;
         this.snippetStore = snippetStore;
         this.manageUi = manageUi;
+        this.textBehavior = textBehavior;
         this.snippetListRenderer = snippetListRenderer;
     };
     
@@ -297,7 +298,7 @@ export class HandleEvents {
 
     closeEditButton() {
         this.elements.closeEditButton.addEventListener("click", () => {
-            this.manageUiElements.editForm.hidden = true;
+            this.elements.editForm.hidden = true;
         });
     };
     
@@ -360,6 +361,34 @@ export class HandleEvents {
         });
     };
 
+    textAreaBehavior() {
+        this.elements.textArea.addEventListener("input", (inputEvent) => {
+            if (inputEvent.inputType === "insertText") {
+                const replacementMap = this.textBehavior.findTextMap();
+
+                if (replacementMap) {
+                    this.textBehavior.replaceText(replacementMap);
+                };
+            };
+
+            this.textBehavior.renderPreview();
+        });
+
+        this.elements.textArea.addEventListener("keydown", (keyDownEvent) => {
+            const replacementMap = this.textBehavior.findKeyMap(
+                keyDownEvent.key
+            );
+
+            if (!replacementMap) {
+                return;
+            };
+
+            keyDownEvent.preventDefault();
+            this.textBehavior.replaceText(replacementMap, 0);
+            this.textBehavior.renderPreview();
+        });
+    };
+
     bindEvents(page) {
         if (page === "/") {
             this.nextButton();
@@ -371,10 +400,12 @@ export class HandleEvents {
             this.deleteButton();
             this.submitEditButton();
             this.copyJsonButton()
+            this.textAreaBehavior()
             return;
         };
         if (page === "/snippet-creation") {
             this.submitNewSnipButton()
+            this.textAreaBehavior()
             return;
         };
         console.log ("=> invalid endpoint")

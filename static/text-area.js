@@ -35,131 +35,71 @@ export class TextBehavior {
 
     /**
      * @param {HTMLTextAreaElement} textArea - Textarea controlled by this class.
+     * @param {HTMLElement} previewArea - Element that displays the readable preview.
      * @param {Array<Object>} keyMaps - Mappings for regular character triggers.
      * @param {Array<Object>} specialMaps - Mappings for special keyboard keys.
      */
-    constructor(textArea, keyMaps, specialMaps) {
+    constructor(textArea, previewArea, keyMaps, specialMaps) {
         this.textArea = textArea;
+        this.previewArea = previewArea;
         this.keyMaps = keyMaps;
         this.specialMaps = specialMaps;
     };
 
-    bindEvents() {
-        this.textArea.addEventListener("input", (inputEvent) => {
-            //need to ensure that special keys are denied access
-            if (inputEvent.inputType === "insertText") {
-                let validKeyMap = this.handleKeypress()
-                if (!validKeyMap) {
-                    return;
-                };
-                this.insertText(validKeyMap)
-                return;
-            }
-            return;
-        })
-
-        this.textArea.addEventListener("keydown", (keyDownEvent) => {
-            const isSingleTypedCharacter = keyDownEvent.key.length === 1;
-            //need to ensure that character keys are denied access
-            if (isSingleTypedCharacter) {
-                return;
-            };
-
-            let validSpecialMap = this.handleSpecialpress(keyDownEvent) 
-            if (!validSpecialMap) {
-                return;
-            };
-            //must pass null here to force argument into position
-            this.insertText(null, validSpecialMap);
-            return;
-        });
-
-        this.textArea.addEventListener("input", () => {
-            this.generatePreviewText();
-        });
-    };
-    
-    handleSpecialpress(keyDownEvent) {
-       let validSpecialMap = specialMaps.find((specialMap) => 
-           keyDownEvent.key === specialMap.trigger 
-        );
-        if (!validSpecialMap) {
-            return;
-        };
-        keyDownEvent.preventDefault();
-        return validSpecialMap;
-    };
-
-    handleKeypress() {
-        let allText = this.textArea.value;
-        let textCursorPosition = this.textArea.selectionStart;
-        let textBeforeCursor = allText.slice(0,textCursorPosition)
-        let matchingKeymap;
-
-        //endswith can match strings of inifinite length as lomg as input is correct
-        matchingKeymap = this.keyMaps.find(
-            (currentKeymap) =>
-                textBeforeCursor.endsWith(currentKeymap.trigger)
+    findTextMap() {
+        const textBeforeCursor = this.textArea.value.slice(
+            0,
+            this.textArea.selectionStart
         );
 
-        if (!matchingKeymap) {
-            return;
-        }
-        else {
-            return matchingKeymap
-        }
+        return this.keyMaps.find(
+            (keyMap) => textBeforeCursor.endsWith(keyMap.trigger)
+        );
     };
 
-    //issue: keypresses that  dont produce text will break this (tab)
-    insertText(validKeyMap=null, validSpecialMap=null) {
+    findKeyMap(key) {
+        return this.specialMaps.find(
+            (specialMap) => key === specialMap.trigger
+        );
+    };
+
+    replaceText(replacementMap, triggerLength = replacementMap.trigger.length) {
         const allText = this.textArea.value;
         const cursorPosition = this.textArea.selectionStart;
+        const textBeforeTrigger = allText.slice(
+            0,
+            cursorPosition - triggerLength
+        );
         const textAfterCursor = allText.slice(cursorPosition);
-        let triggerLength;
-        let replacementText;
-        let textBeforeTrigger;
-
-        if (validKeyMap) {
-            triggerLength = validKeyMap.trigger.length;
-            replacementText = validKeyMap.replacement;
-            textBeforeTrigger = allText.slice(0,cursorPosition - triggerLength);
-        };
-
-        if (validSpecialMap) {
-            //special keymaps have no textarea length
-            triggerLength = 0;
-            replacementText = validSpecialMap.replacement;
-            textBeforeTrigger = allText.slice(0,cursorPosition - triggerLength);
-        };
+        const newCursorPosition = textBeforeTrigger.length + replacementMap.replacement.length;
 
         this.textArea.value =
             textBeforeTrigger +
-            replacementText +
+            replacementMap.replacement +
             textAfterCursor;
-
-        const newCursorPosition =
-            textBeforeTrigger.length + replacementText.length;
-
         this.textArea.selectionStart = newCursorPosition;
         this.textArea.selectionEnd = newCursorPosition;
-    }
+    };
 
-    generatePreviewText () {
-        const previewText = document.querySelector("#snippet-preview-area");
-        let defaultFormatText = this.textArea.value;
+    formatPreview() {
+        let previewText = this.textArea.value;
+        const allMaps = [...this.keyMaps, ...this.specialMaps];
 
-        keyMaps.forEach(map => {
+        allMaps.forEach((map) => {
             if (map.default === "<placeholder>") {
                 return;
             };
-            defaultFormatText = 
-                defaultFormatText.replaceAll(map.replacement,map.default);
+
+            previewText = previewText.replaceAll(
+                map.replacement,
+                map.default
+            );
         });
 
-        specialMaps.forEach(map => {
-            defaultFormatText = 
-                defaultFormatText.replaceAll(map.replacement,map.default);
-        });
-        previewText.textContent = defaultFormatText
-    }
+        return previewText;
+    };
+
+    renderPreview() {
+        this.previewArea.textContent = this.formatPreview();
+    };
 };

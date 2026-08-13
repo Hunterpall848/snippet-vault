@@ -31,10 +31,12 @@ const manageSnipsElements = {
     formSubmitButton: document.querySelector("#form-submit-button"),
 
     textArea: document.querySelector("#body"),
+    previewArea: document.querySelector("#snippet-preview-area"),
 };
 
 const textBehavior = new TextBehavior(
-    manageSnipsElements.textArea, 
+    manageSnipsElements.textArea,
+    manageSnipsElements.previewArea,
     keyMaps, 
     specialMaps
 );
@@ -50,9 +52,9 @@ const handleEvents = new HandleEvents(
     snippetStore,
     manageUi,
     snippetListRenderer,
+    textBehavior,
     manageSnipsElements);
 
 //runtime
 manageUi.initialPageState()
 handleEvents.bindEvents("/")
-textBehavior.bindEvents()

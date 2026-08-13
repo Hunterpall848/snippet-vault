@@ -1,14 +1,14 @@
-import { SnippetStore } from "./snippet-store.js";
+import { SnippetStore } from "/static/snippet-store.js";
 import {
     ManageUi,
     SnippetListRenderer,
     HandleEvents
-} from "./ui-management.js";
+} from "/static/ui-management.js";
 import {
     TextBehavior,
     keyMaps,
     specialMaps
-} from "./text-area.js";
+} from "/static/text-area.js";
 
 const manageSnipsElements = {
     displayCard: document.querySelector("#display-card"),
@@ -27,13 +27,31 @@ const manageSnipsElements = {
     editButton: document.querySelector("#edit-snippet"),
     deleteButton: document.querySelector("#delete-button"),
     closeEditButton: document.querySelector("#close-edit"),
+    formSubmitButton: document.querySelector("#form-submit-button"),
 
     textArea: document.querySelector("#body"),
 };
 
-const snippetListRenderer = new SnippetListRenderer(snippetStore, manageSnipElements);
-const manageUi = new ManageUi(snippetStore, snippetListRenderer, manageSnipElements);
-const handleEvents = new HandleEvents(manageUi, snippetListRenderer, manageSnipsElements);
+const textBehavior = new TextBehavior(
+    manageSnipsElements.textArea, 
+    keyMaps, 
+    specialMaps
+);
+const snippetStore = new SnippetStore()
+const snippetListRenderer = new SnippetListRenderer(snippetStore, manageSnipsElements);
+const manageUi = new ManageUi(
+    snippetStore, 
+    snippetListRenderer, 
+    textBehavior, 
+    manageSnipsElements
+);
+const handleEvents = new HandleEvents(
+    snippetStore,
+    manageUi,
+    snippetListRenderer,
+    manageSnipsElements);
 
-
-
+//runtime
+manageUi.initialPageState()
+handleEvents.bindEvents("/")
+textBehavior.bindEvents()

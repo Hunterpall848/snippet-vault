@@ -44,7 +44,7 @@ export class TextBehavior {
         this.specialMaps = specialMaps;
     };
 
-    createEventListeners() {
+    bindEvents() {
         this.textArea.addEventListener("input", (inputEvent) => {
             //need to ensure that special keys are denied access
             if (inputEvent.inputType === "insertText") {

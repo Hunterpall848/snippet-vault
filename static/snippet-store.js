@@ -6,7 +6,7 @@ export class SnippetStore {
     constructor() {
         this.allSnips = [];
         // this.snipIndexPosition = null; 
-        this.snipId = null;
+        this.currentSnipId = null;
     };
 
     async refreshSnips() {
@@ -80,33 +80,41 @@ export class SnippetStore {
     };
 
     getCurrentSnippet() {
-        if (!this.snipIndexPosition) {
+        //needed to verify if a snippet should be loaded or a default state
+        if (this.currentSnipId === null) {
             return;
         };
-        return this.allSnips[this.snipIndexPosition]
-    };
 
-    matchIndex(matcher=null) {
-        if (matcher) {
-            let matchingIndex = this.allSnips.findIndex((snip) => {
-                return snip.snippet_id === matcher;
-            });
-            return matchingIndex;
+        const currentSnippet = this.allSnips.find((snips) => {
+            return this.currentSnipId === snips.snippet_id;
+        });
+
+        if (currentSnippet === undefined) {
+            return console.log('=> Error finding valid snippet match');
         };
-        return;
+        return currentSnippet;
     };
 
-    updateIndexPosition(newIndex) {
-        const indexIsValid =
-                Number.isInteger(newIndex) &&
-                newIndex >= 0 &&
-                newIndex < this.allSnips.length;
+    updateActiveId(snippetId) {
+        const idIsValid =
+                Number.isInteger(snippetId) &&
+                snippetId >= 0 &&
+                this.allSnips.some((snippet) => {
+                    return snippet.snippet_id === snippetId;
+                });
 
-            if (!indexIsValid) {
+            if (idIsValid === false) {
                 return false;
             };
 
-            this.snipIndexPosition = newIndex;
+            this.currentSnipId = snippetId;
             return;
+    };
+
+    getIndex(snipId) {
+        const currentIndex = this.allSnips.findIndex((snippet) => {
+            return snippet.snippet_id === snipId;
+        });
+        return currentIndex;
     };
 };

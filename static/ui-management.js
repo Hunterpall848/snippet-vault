@@ -1,12 +1,3 @@
-import {SnippetStore} from "./snippet-utils.js";
-import {TextBehavior, keyMaps, specialMaps} from "./text-area.js"
-
-const textArea = document.querySelector("#body");
-const snippetStore = new SnippetStore()
-const textbehavior = new TextBehavior(textArea, keyMaps, specialMaps)
-
-
-
 export class ManageUi {
 
     /**
@@ -14,9 +5,10 @@ export class ManageUi {
      * @param {SnippetListRenderer} snippetListRenderer - Renders the snippet-selection lists.
      * @param {Object} elements - Container for all DOM elements used by this class.
      */
-    constructor (snippetStore, snippetListRenderer, elements) {
+    constructor (snippetStore, snippetListRenderer, textBehavior, elements) {
         this.snippetStore = snippetStore;
         this.snippetListRenderer = snippetListRenderer;
+        this.textBehavior = textBehavior;
         this.elements = elements;
     };
 
@@ -29,11 +21,12 @@ export class ManageUi {
             return;
         };
 
-        this.createlanguageList(allSnips)
+        this.snippetListRenderer.createLanguageList(allSnips)
         const validationCheck = this.handleUrlParsing()
 
         if (validationCheck) {
-            this.showCurrentSnippet()
+            const currentSnip = this.snippetStore.getCurrentSnippet();
+            this.showCurrentSnippet(currentSnip)
             return;
         };
 
@@ -50,9 +43,9 @@ export class ManageUi {
         };
         let formatedSnip = {[snippetTitle]: snippetBody};
 
-        this.elements.title.textContent = snippetTitle;
-        this.elements.prefix.textContent = currentSnip.prefix;
-        this.elements.body.textContent = JSON.stringify(formatedSnip, null, 2);
+        this.elements.displayTitle.textContent = snippetTitle;
+        this.elements.displayPrefix.textContent = currentSnip.prefix;
+        this.elements.displayBody.textContent = JSON.stringify(formatedSnip, null, 2);
 
         this.elements.displayCard.hidden = false;
         this.elements.initialState.hidden = true;
@@ -60,18 +53,17 @@ export class ManageUi {
 
     async updatePageState(snippetId) {
         const allSnips = await this.snippetStore.refreshSnips();
-        const matchingIndex = this.snippetStore.matchIndex(snippetId)
-        this.snippetStore.updateIndexPosition(matchingIndex)
+        this.snippetStore.updateActiveId(snippetId);
         let currentSnip = this.snippetStore.getCurrentSnippet();
 
-        this.snippetListRenderer.elements.languageElementDiv.replaceChildren()
-        this.snippetListRenderer.elements.snippetMenu.replaceChildren()
-        this.languageList(allSnips)
+        this.elements.languageButtonList.replaceChildren()
+        this.elements.snippetMenu.replaceChildren()
+        this.snippetListRenderer.createLanguageList(allSnips)
 
         if (!snippetId) {
             this.elements.displayCard.hidden = true;
             this.elements.initialState.hidden = false;
-            this.snippetListRenderer.elements.snippetMenu.hidden = true;
+            this.elements.snippetMenu.hidden = true;
             return;
         };
 
@@ -85,26 +77,24 @@ export class ManageUi {
         this.showCurrentSnippet(currentSnip);
     }
 
-    selectSnippetFromUrl() {
+    handleUrlParsing() {
         const urlObject = new URLSearchParams(window.location.search);
         const snippetIdParam = urlObject.get("snippetid");
         const snippetIdFromUrl = snippetIdParam ? Number(snippetIdParam) : null;
 
         if (snippetIdFromUrl) {
-            const matchingIndex = this.snippetStore.matchIndex(snippetIdFromUrl);
-
-            this.snippetStore.updateIndexPosition(matchingIndex)
+            const idWasUpdated = this.snippetStore.updateActiveId(snippetIdFromUrl)
             //returns true so that the boolean can be evaluated if there was a URL ID
-            return true;
+            return idWasUpdated !== false;
         };
-            return;
+            return false;
     };
 
     async updateEditForm() {
         let currentSnippet = this.snippetStore.getCurrentSnippet();
         this.loadSnippetIntoForm(currentSnippet);
 
-        textbehavior.generatePreviewText()
+        this.textBehavior.generatePreviewText()
     };
 
     loadSnippetIntoForm(editingSnippet) {
@@ -121,6 +111,28 @@ export class ManageUi {
         descriptionInput.value = editingSnippet.description || "";
         this.elements.editForm.hidden = false;
     };
+
+    changeCurrentSnippet (change) {
+        const currentSnip = this.snippetStore.getCurrentSnippet();
+
+        if (!currentSnip) {
+            console.log("=> Invalid snippet Id provided")
+            return;
+        };
+
+        const currentSnipIndex = this.snippetStore.getIndex(currentSnip.snippet_id);
+        const newIndex = currentSnipIndex + change;
+        const newSnip = this.snippetStore.allSnips[newIndex];
+
+        if (!newSnip) {
+            return;
+        };
+
+        this.snippetStore.updateActiveId(newSnip.snippet_id);
+        return newSnip; 
+    };
+
+    buildNextSnippet
 };
 
 
@@ -136,8 +148,8 @@ export class SnippetListRenderer {
         this.elements = elements;
     };
 
-    presentLanguages() {
-        const allSnips = this.snippetStore.refreshSnips()
+    async presentLanguages() {
+        const allSnips = await this.snippetStore.refreshSnips()
         const languages = new Set([]); 
         allSnips.forEach ((snip) => {
             languages.add(snip.language);
@@ -146,15 +158,15 @@ export class SnippetListRenderer {
     };
 
     async createLanguageList() {
-        const allLanguages = this.presentLanguages();
+        const allLanguages = await this.presentLanguages();
 
         allLanguages.forEach ((lang) => {
             const languageButton = document.createElement("button");
             languageButton.textContent = lang;
             languageButton.dataset.language = lang
-            this.elements.languageElementDiv.appendChild(languageButton);
+            this.elements.languageButtonList.appendChild(languageButton);
         });
-        return this.elements.languageElementDiv;
+        return this.elements.languageButtonList;
     };
 
     async createSnippetList(snips = null, lang = null) {
@@ -184,8 +196,8 @@ export class SnippetListRenderer {
         return this.elements.snippetMenu;
     };
 
-    createLinkList(allSnips) {
-        const languages = presentLanguages(allSnips);
+    async createLinkList(allSnips) {
+        const languages = await this.presentLanguages(allSnips);
         const container = this.elements.linkList;
 
         container.replaceChildren()
@@ -214,114 +226,134 @@ export class SnippetListRenderer {
             languageSection.append(languageHeading, languageList);
             container.appendChild(languageSection);
         });
-
     };
 };
 
 
 
-const snippetListRenderer = new SnippetListRenderer(snippetStore, renderListElements);
-const manageUi = new ManageUi(snippetStore, snippetListRenderer, manageUiElements);
-
 export class HandleEvents {
     
-    constructor(manageUi, snippetListRenderer, buttonElements) {
-        this.buttonElements = buttonElements;
+    constructor(snippetStore, manageUi, snippetListRenderer, elements) {
+        this.elements = elements;
+        this.snippetStore = snippetStore;
+        this.manageUi = manageUi;
+        this.snippetListRenderer = snippetListRenderer;
     };
     
     nextButton() {
-        this.buttonElements.next.addEventListener("click", function() {
-            const lastSnippetIndex = snippetStore.allSnips.length - 1
-            if (snippetStore.snipIndexPosition == lastSnippetIndex) {
+        this.elements.nextButton.addEventListener("click", () => {
+            const nextSnippet = this.manageUi.changeCurrentSnippet(+1);
+            if (!nextSnippet) {
                 return;
-            }
-            snippetStore.snipIndexPosition++;
-            viewSnippets.buildCard();
+            };
+
+            this.manageUi.showCurrentSnippet(nextSnippet);
         });
     };
 
     prevButton() {
-        this.buttonElements.previous.addEventListener("click", function() {
-            if (snippetStore.snipIndexPosition == 0) {
+        this.elements.previousButton.addEventListener("click", () => {
+            const previousSnippet = this.manageUi.changeCurrentSnippet(-1);
+            if (!previousSnippet) {
                 return;
-            }
-            snippetStore.snipIndexPosition--;
-            viewSnippets.buildCard();
+            };
+
+            this.manageUi.showCurrentSnippet(previousSnippet);
         });
     };
 
     languageButtons() {
-        this.buttonElements.languageButtonList.addEventListener("click", (langClickEvent) => {
+        this.elements.languageButtonList.addEventListener("click", (langClickEvent) => {
             let clickedLangButton = langClickEvent.target.closest("button");
 
             let clickedLanguage = clickedLangButton.dataset.language;
-            renderListElements.snippetMenu.replaceChildren()
-            viewSnippets.snippetList(snippetStore.allSnips, clickedLanguage);
-            renderListElements.snippetMenu.hidden = false; 
+            this.elements.snippetMenu.replaceChildren()
+            this.snippetListRenderer.createSnippetList(this.snippetStore.allSnips, clickedLanguage);
+            this.elements.snippetMenu.hidden = false; 
             return;
         });
     };
     
     snippetButtons() {
-        this.buttonElements.snippetMenu.addEventListener("change", (snipEvent) => {
+        this.elements.snippetMenu.addEventListener("change", (snipEvent) => {
             let snippetId = Number(snipEvent.target.value);
+            this.snippetStore.updateActiveId(snippetId);
 
-            let matchingSnippet = snippetStore.matchIndex(snippetId)
-            snippetStore.updateIndexPosition(matchingSnippet)
-
-            viewSnippets.buildCard()
-            manageUiElements.editForm.hidden = true;
+            const currentSnip = this.snippetStore.getCurrentSnippet()
+            this.manageUi.showCurrentSnippet(currentSnip)
+            this.elements.editForm.hidden = true;
         });
     };
 
     editButton() {
-        this.buttonElements.editSnippet.addEventListener("click", async ()=> {
-            editDatabase.updateEditForm();
+        this.elements.editButton.addEventListener("click", async() => {
+            this.manageUi.updateEditForm();
         });
     };
 
     closeEditButton() {
-        this.buttonElements.closeEditForm.addEventListener("click", () => {
-            manageUiElements.editForm.hidden = true;
+        this.elements.closeEditButton.addEventListener("click", () => {
+            this.manageUiElements.editForm.hidden = true;
         });
     };
     
     deleteButton() {
-        this.buttonElements.deleteSnippet.addEventListener("click", async() => {
-            editDatabase.deleteSnip();
-            snippetStore.refreshSnips();
+        this.elements.deleteButton.addEventListener("click", async() => {
+            this.snippetStore.deleteSnip();
+            this.snippetStore.refreshSnips();
 
-            viewSnippets.updatePage();
+            this.manageUi.updatePageState();
         });
     };
     
     submitEditButton() {
-        this.buttonElements.formSubmit.addEventListener("click", async(event) => {
+        this.elements.formSubmitButton.addEventListener("click", async(event) => {
             event.preventDefault();
-            let editedSnipId = snippetStore.getCurrentSnippet().snippet_id;
-            await handleFormSubmit(
+            let editedSnipId = this.snippetStore.getCurrentSnippet().snippet_id;
+            await this.snippetStore.submitSnip(
                 event,
                 `/api/edit-snippets/${editedSnipId}`,
                 "#edit-snip-form",
                 "PATCH"
             );
 
-            snippetStore.refreshSnips()
+            this.snippetStore.refreshSnips()
 
-            manageUiElements.editForm.hidden = true;
-            this.snippetButtons.snippetMenu.hidden = true;
-            this.viewSnippets.updatePage(editedSnipId);
+            this.elements.editForm.hidden = true;
+            this.elements.snippetMenu.hidden = true;
+            this.manageUi.updatePageState(editedSnipId);
         });
     };
 
-    bindEvents() {
-        this.nextButton();
-        this.prevButton();
-        this.languageButtons();
-        this.snippetButtons();
-        this.editButton();
-        this.closeEditButton();
-        this.deleteButton();
-        this.submitEditButton();
+    submitNewSnipButton() {
+        this.elements.formButton.addEventListener("click", async function(event) {
+            await this.snippetStore.submitSnip(event, 
+                `/api/snippet-creation`, 
+                "#new-snip-form", 
+                "POST"
+            );
+            const allSnips = await this.snippetStore.refreshSnips()
+            this.snippetListRenderer.createLinkList(allSnips);
+        });
+    };
+
+    bindEvents(page) {
+        if (page === "/") {
+            this.nextButton();
+            this.prevButton();
+            this.languageButtons();
+            this.snippetButtons();
+            this.editButton();
+            this.closeEditButton();
+            this.deleteButton();
+            this.submitEditButton();
+            return;
+        };
+        if (page === "/snippet-creation") {
+            this.submitNewSnipButton()
+            return;
+        };
+        console.log ("=> invalid endpoint")
+        return;
     };
 };

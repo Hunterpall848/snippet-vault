@@ -35,6 +35,10 @@ export class ManageUi {
         return;
     };
 
+    reformatSnippet() {
+
+    };
+
     showCurrentSnippet(currentSnip) {
         let snippetTitle = currentSnip.title;
         let snippetBody = {
@@ -300,9 +304,26 @@ export class HandleEvents {
     deleteButton() {
         this.elements.deleteButton.addEventListener("click", async() => {
             this.snippetStore.deleteSnip();
+            this.elements.editForm.hidden = true;
             this.snippetStore.refreshSnips();
 
             this.manageUi.updatePageState();
+        });
+    };
+
+    copyJsonButton() {
+        this.elements.copyButton.addEventListener("click", async() => {
+            try {
+                const toCopy = this.elements.displayBody.textContent;
+                await navigator.clipboard.writeText(toCopy);
+                this.elements.copyButton.textContent = "Copied";
+                setTimeout(() => {
+                   this.elements.copyButton.textContent = "Copy"; 
+                }, 2000);
+            } 
+            catch(error) {
+                console.error("=> Error copying snippet:", error) 
+            };
         });
     };
     
@@ -326,9 +347,11 @@ export class HandleEvents {
     };
 
     submitNewSnipButton() {
-        this.elements.formButton.addEventListener("click", async function(event) {
+        this.elements.formButton.addEventListener("click", async(event) => {
+            event.preventDefault();
+
             await this.snippetStore.submitSnip(event, 
-                `/api/snippet-creation`, 
+                "/api/snippet-creation", 
                 "#new-snip-form", 
                 "POST"
             );
@@ -347,6 +370,7 @@ export class HandleEvents {
             this.closeEditButton();
             this.deleteButton();
             this.submitEditButton();
+            this.copyJsonButton()
             return;
         };
         if (page === "/snippet-creation") {

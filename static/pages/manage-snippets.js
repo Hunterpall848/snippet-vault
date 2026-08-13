@@ -22,6 +22,7 @@ const manageSnipsElements = {
     languageButtonList: document.querySelector("#language-button-list"),
     snippetMenu: document.querySelector("#snippet-menu"),
 
+    copyButton: document.querySelector("#copy-json"),
     nextButton: document.querySelector("#next"),
     previousButton: document.querySelector("#prev"),
     editButton: document.querySelector("#edit-snippet"),

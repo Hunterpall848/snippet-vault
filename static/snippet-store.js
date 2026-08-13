@@ -19,7 +19,7 @@ export class SnippetStore {
     };
 
     async deleteSnip() {
-        const snippet = this.getCurrentSnippet() 
+        let snippet = this.getCurrentSnippet() 
 
         let currentId = snippet.snippet_id;
         let currentTitle = snippet.title;
@@ -44,7 +44,6 @@ export class SnippetStore {
         };
 
         snippet = null;
-        editForm.hidden = true;
         return;
     };
 

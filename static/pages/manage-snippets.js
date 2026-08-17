@@ -17,7 +17,7 @@ const manageSnipsElements = {
     displayTitle: document.querySelector("#display-title"),
     displayPrefix: document.querySelector("#display-prefix"),
     displayBody: document.querySelector("#display-body"),
-    editForm: document.querySelector("#edit-snip-form"),
+    editForm: document.querySelector("#snip-form"),
 
     languageButtonList: document.querySelector("#language-button-list"),
     snippetMenu: document.querySelector("#snippet-menu"),
@@ -29,6 +29,7 @@ const manageSnipsElements = {
     deleteButton: document.querySelector("#delete-button"),
     closeEditButton: document.querySelector("#close-edit"),
     formSubmitButton: document.querySelector("#form-submit-button"),
+    newPlaceholder: document.querySelector("#new-placeholder"),
 
     textArea: document.querySelector("#body"),
     previewArea: document.querySelector("#snippet-preview-area"),

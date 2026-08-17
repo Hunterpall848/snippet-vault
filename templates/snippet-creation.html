@@ -12,12 +12,13 @@
     </nav>
 
     <body>
-        <form method="post" action="/snippet-creation" id="new-snip-form">
+        <form method="post" action="/snippet-creation" id="snip-form">
 
             {{ snippet_form(langs) }} 
 
             <div>
                 <button type="submit" id="form-submit-button">Submit</button>
+                <button type="button" id="new-placeholder" hidden>${i:value}</button>
             </div>
         </form>
 

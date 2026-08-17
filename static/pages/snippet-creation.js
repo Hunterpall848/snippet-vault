@@ -15,6 +15,7 @@ const snippetCreationElements = {
     previewArea: document.querySelector("#snippet-preview-area"),
     formButton: document.querySelector("#form-submit-button"),
     linkList: document.querySelector("#link-list"),
+    newPlaceholder: document.querySelector("#new-placeholder"),
 };
 
 const textBehavior = new TextBehavior(

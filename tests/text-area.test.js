@@ -18,7 +18,7 @@ function createTextBehavior(value, cursorPosition) {
     return {textArea, previewArea, textBehavior};
 };
 
-describe("TextBehavior", () => {
+describe("TextBehavior test", () => {
     test("replaces a typed trigger and moves the cursor", () => {
         const {textArea, textBehavior} = createTextBehavior('"', 1);
         const replacementMap = textBehavior.findTextMap();
@@ -51,5 +51,30 @@ describe("TextBehavior", () => {
 
         expect(previewText).toBe('console.log("hello")\n');
         expect(previewArea.textContent).toBe(previewText);
+    });
+
+    test("counts placeholders in a mock textarea", () => {
+        const mockText = [
+            "This is ordinary textarea text.",
+            "Replace ${1:this value} and ${2:this other value}.",
+            "A normal JavaScript expression like ${username} is ignored.",
+            "The last placeholder is ${3:final value}.",
+        ].join("\n");
+
+        const {textArea, textBehavior} = createTextBehavior(
+            mockText,
+            mockText.length
+        );
+
+        expect(textArea.value).toBe(mockText);
+        expect(textBehavior.scanTextArea()).toBe(3);
+        expect(textBehavior.placeholderCount).toBe(3);
+    });
+
+    test("returns zero when a mock textarea has no placeholders", () => {
+        const mockText = "There are no numbered placeholders here.";
+        const {textBehavior} = createTextBehavior(mockText, mockText.length);
+
+        expect(textBehavior.scanTextArea()).toBe(0);
     });
 });

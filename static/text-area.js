@@ -11,9 +11,9 @@ export const keyMaps = [
         default: "\\",
     },
     {
-        trigger: "$i", //where i is an int
-        replacement: "${i:value}",
-        default: "<placeholder>",
+        trigger: "$0", //where i is an int
+        replacement: "${0}",
+        default: "ignore",
     },
 ];
 
@@ -44,6 +44,7 @@ export class TextBehavior {
         this.previewArea = previewArea;
         this.keyMaps = keyMaps;
         this.specialMaps = specialMaps;
+        this.placeholderCount = null;
     };
 
     findTextMap() {
@@ -51,7 +52,6 @@ export class TextBehavior {
             0,
             this.textArea.selectionStart
         );
-
         return this.keyMaps.find(
             (keyMap) => textBeforeCursor.endsWith(keyMap.trigger)
         );
@@ -86,20 +86,62 @@ export class TextBehavior {
         const allMaps = [...this.keyMaps, ...this.specialMaps];
 
         allMaps.forEach((map) => {
-            if (map.default === "<placeholder>") {
+            if (map.default === "ignore") {
                 return;
             };
 
-            previewText = previewText.replaceAll(
-                map.replacement,
-                map.default
-            );
+        previewText = previewText.replaceAll(map.replacement,map.default);
         });
-
         return previewText;
     };
 
     renderPreview() {
         this.previewArea.textContent = this.formatPreview();
+    };
+
+    updatePlcholderCnt() {
+        const target = /\$\{\d+:[^}]*\}/g;
+        const textArea = this.textArea.value;
+
+        const targetMatches = textArea.match(target) || [];
+        this.placeholderCount = targetMatches.length + 1;
+        return this.placeholderCount;
+    };
+
+    sliceHighlighted() {
+        let highlightedTextData = {};
+        const selectionStart = this.textArea.selectionStart;
+        const selectionEnd = this.textArea.selectionEnd;
+
+        //used to deny access to non highlights
+        if (selectionStart === selectionEnd) {
+            return;
+        };
+        
+        highlightedTextData = {
+            highlightedText: this.textArea.value.slice(selectionStart, selectionEnd),
+            selectionStart,
+            selectionEnd,
+        };
+        return highlightedTextData;
+    }; 
+
+    createPlaceholder(highlightedTextData) {
+         if (highlightedTextData === undefined) {
+            return;
+         };
+        
+        const placeholder = "${" 
+        + this.placeholderCount 
+        + ":" 
+        + highlightedTextData.highlightedText 
+        + "}";
+
+        this.textArea.setRangeText(
+            placeholder,
+            highlightedTextData.selectionStart,
+            highlightedTextData.selectionEnd,
+            "end"
+        );
     };
 };

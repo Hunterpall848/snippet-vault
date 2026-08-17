@@ -32,13 +32,14 @@
                 </div>
             </main> 
 
-            <form method="patch" action="/api/edit-snippets" id="edit-snip-form" hidden>
+            <form method="patch" action="/api/edit-snippets" id="snip-form" hidden>
                 {{ snippet_form(langs) }} 
 
                 <div>
                     <button type="submit" id="form-submit-button">Update</button>
                     <button type="button" id="delete-button">Delete</button>
                     <button type="button" id="close-edit">Close</button>
+                    <button type="button" id="new-placeholder" hidden>${i:value}</button>
                 </div>
             </form>
 

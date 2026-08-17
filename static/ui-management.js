@@ -335,7 +335,7 @@ export class HandleEvents {
             await this.snippetStore.submitSnip(
                 event,
                 `/api/edit-snippets/${editedSnipId}`,
-                "#edit-snip-form",
+                "#snip-form",
                 "PATCH"
             );
 
@@ -353,7 +353,7 @@ export class HandleEvents {
 
             await this.snippetStore.submitSnip(event, 
                 "/api/snippet-creation", 
-                "#new-snip-form", 
+                "#snip-form", 
                 "POST"
             );
             const allSnips = await this.snippetStore.refreshSnips()
@@ -370,7 +370,8 @@ export class HandleEvents {
                     this.textBehavior.replaceText(replacementMap);
                 };
             };
-
+            
+            this.textBehavior.updatePlcholderCnt();
             this.textBehavior.renderPreview();
         });
 
@@ -389,6 +390,28 @@ export class HandleEvents {
         });
     };
 
+    showPlaceholderButton() {
+        this.elements.textArea.addEventListener("selectionchange", () => {
+            const highlightCheck = this.textBehavior.sliceHighlighted();
+
+            if (highlightCheck === undefined) {
+                //hides button if  slicehighlighted returns undefined
+                this.elements.newPlaceholder.hidden = true;
+                return;
+            };
+            this.elements.newPlaceholder.hidden = false;
+        });
+    };
+
+    placeholderButton() {
+        this.elements.newPlaceholder.addEventListener("click", () => {
+            const highlightedTextData = this.textBehavior.sliceHighlighted();
+            this.textBehavior.createPlaceholder(highlightedTextData);
+
+            this.elements.newPlaceholder.hidden = true;
+        });
+    };
+
     bindEvents(page) {
         if (page === "/") {
             this.nextButton();
@@ -399,13 +422,17 @@ export class HandleEvents {
             this.closeEditButton();
             this.deleteButton();
             this.submitEditButton();
-            this.copyJsonButton()
-            this.textAreaBehavior()
+            this.copyJsonButton();
+            this.textAreaBehavior();
+            this.placeholderButton();
+            this.showPlaceholderButton();
             return;
         };
         if (page === "/snippet-creation") {
-            this.submitNewSnipButton()
-            this.textAreaBehavior()
+            this.submitNewSnipButton();
+            this.textAreaBehavior();
+            this.placeholderButton();
+            this.showPlaceholderButton();
             return;
         };
         console.log ("=> invalid endpoint")

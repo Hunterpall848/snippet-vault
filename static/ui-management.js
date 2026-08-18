@@ -26,7 +26,7 @@ export class ManageUi {
 
         if (validationCheck) {
             const currentSnip = this.snippetStore.getCurrentSnippet();
-            this.showCurrentSnippet(currentSnip)
+            this.showSnippetJson(currentSnip)
             return;
         };
 
@@ -35,24 +35,38 @@ export class ManageUi {
         return;
     };
 
-    reformatSnippet() {
-
-    };
-
-    showCurrentSnippet(currentSnip) {
+    reformatSnippet(currentSnip) {
         let snippetTitle = currentSnip.title;
         let snippetBody = {
             prefix: currentSnip.prefix,
             body: currentSnip.body
         };
-        let formatedSnip = {[snippetTitle]: snippetBody};
+        let formattedSnippet = {[snippetTitle]: snippetBody};
+        return formattedSnippet;
+    };
 
-        this.elements.displayTitle.textContent = snippetTitle;
+    showSnippetJson(currentSnip) {
+        const formattedSnippet = this.reformatSnippet(currentSnip);
+
+        this.elements.displayTitle.textContent = Object.keys(formattedSnippet)[0];
         this.elements.displayPrefix.textContent = currentSnip.prefix;
-        this.elements.displayBody.textContent = JSON.stringify(formatedSnip, null, 2);
+        this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
 
         this.elements.displayCard.hidden = false;
         this.elements.initialState.hidden = true;
+    };
+
+    ShowFormJson() {
+        const formData = new FormData(this.elements.form);
+        const draftSnippet = {
+            title: formData.get("title"),
+            prefix: formData.get("prefix"),
+            body: formData.get("body"),
+        };
+        const formattedSnippet = this.reformatSnippet(draftSnippet);
+
+        this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
+        this.elements.displayCard.hidden = false;
     };
 
     async updatePageState(snippetId) {
@@ -78,7 +92,7 @@ export class ManageUi {
         };
 
         this.elements.emptyState.hidden = true;
-        this.showCurrentSnippet(currentSnip);
+        this.showSnippetJson(currentSnip);
     }
 
     handleUrlParsing() {
@@ -199,38 +213,6 @@ export class SnippetListRenderer {
         }); 
         return this.elements.snippetMenu;
     };
-
-    async createLinkList(allSnips) {
-        const languages = await this.presentLanguages(allSnips);
-        const container = this.elements.linkList;
-
-        container.replaceChildren()
-        
-        languages.forEach((lang) => {
-            const languageSection = document.createElement("section");
-            const languageHeading = document.createElement("h4");
-            const languageList = document.createElement("ul");
-
-            languageHeading.textContent = lang
-
-            const matchingSnippets = allSnips.filter((snippet) => {
-                  return snippet.language === lang;
-            });
-
-            matchingSnippets.forEach((snippet) => {
-                const listItem = document.createElement("li");
-                const link = document.createElement("a");
-
-                link.textContent = snippet.title;
-                link.href = `/?snippetid=${snippet.snippet_id}`;
-
-                listItem.append(link);
-                languageList.append(listItem);
-            });
-            languageSection.append(languageHeading, languageList);
-            container.appendChild(languageSection);
-        });
-    };
 };
 
 
@@ -252,7 +234,7 @@ export class HandleEvents {
                 return;
             };
 
-            this.manageUi.showCurrentSnippet(nextSnippet);
+            this.manageUi.showSnippetJson(nextSnippet);
         });
     };
 
@@ -263,7 +245,7 @@ export class HandleEvents {
                 return;
             };
 
-            this.manageUi.showCurrentSnippet(previousSnippet);
+            this.manageUi.showSnippetJson(previousSnippet);
         });
     };
 
@@ -285,7 +267,7 @@ export class HandleEvents {
             this.snippetStore.updateActiveId(snippetId);
 
             const currentSnip = this.snippetStore.getCurrentSnippet()
-            this.manageUi.showCurrentSnippet(currentSnip)
+            this.manageUi.showSnippetJson(currentSnip)
             this.elements.editForm.hidden = true;
         });
     };
@@ -356,8 +338,12 @@ export class HandleEvents {
                 "#snip-form", 
                 "POST"
             );
-            const allSnips = await this.snippetStore.refreshSnips()
-            this.snippetListRenderer.createLinkList(allSnips);
+        });
+    };
+
+    liveSnippetDisplay() {
+        this.elements.form.addEventListener("input", () => {
+            this.manageUi.ShowFormJson();
         });
     };
 
@@ -370,7 +356,7 @@ export class HandleEvents {
                     this.textBehavior.replaceText(replacementMap);
                 };
             };
-            
+
             this.textBehavior.updatePlcholderCnt();
             this.textBehavior.renderPreview();
         });
@@ -431,6 +417,8 @@ export class HandleEvents {
         if (page === "/snippet-creation") {
             this.submitNewSnipButton();
             this.textAreaBehavior();
+            this.liveSnippetDisplay();
+            this.copyJsonButton();
             this.placeholderButton();
             this.showPlaceholderButton();
             return;

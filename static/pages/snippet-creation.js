@@ -11,11 +11,17 @@ import {
 } from "/static/text-area.js";
 
 const snippetCreationElements = {
+    form: document.querySelector("#snip-form"),
+
     textArea: document.querySelector("#body"),
     previewArea: document.querySelector("#snippet-preview-area"),
+
     formButton: document.querySelector("#form-submit-button"),
-    linkList: document.querySelector("#link-list"),
     newPlaceholder: document.querySelector("#new-placeholder"),
+
+    displayCard: document.querySelector("#display-card"),
+    displayBody: document.querySelector("#display-body"),
+    copyButton: document.querySelector("#copy-json"),
 };
 
 const textBehavior = new TextBehavior(
@@ -39,11 +45,6 @@ const handleEvents = new HandleEvents(
     textBehavior,
     snippetCreationElements);
 
-async function initSnipCreationPage() {
-    const allSnips = await snippetStore.refreshSnips() 
-    snippetListRenderer.createLinkList(allSnips);
-};
-
 //runtime
-initSnipCreationPage();
+manageUi.ShowFormJson();
 handleEvents.bindEvents("/snippet-creation");

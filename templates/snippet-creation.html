@@ -12,6 +12,13 @@
     </nav>
 
     <body>
+       <main id="display-card" hidden>
+            <pre id="display-body"><code></code></pre>
+            <div id="nav-buttons">
+               <button type="button" id="copy-json">Copy</button>
+            </div>
+        </main> 
+
         <form method="post" action="/snippet-creation" id="snip-form">
 
             {{ snippet_form(langs) }} 
@@ -22,7 +29,8 @@
             </div>
         </form>
 
-        <h2> View Snippets </h2>
-        <section id="link-list"></section>
+        <pre>
+            <code id="snippet-preview-area"></code> 
+        </pre>  
     </body>
 </html>

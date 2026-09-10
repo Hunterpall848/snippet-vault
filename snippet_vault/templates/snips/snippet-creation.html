@@ -1,24 +1,33 @@
-{% from "_snippet-form.html" import snippet_form %}
+{% from "snips/_snippet-form.html" import snippet_form %}
+{% extends "base.html" %}
+
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <title> New Snippet </title>
-        <script type="module" src="/static/pages/snippet-creation.js" defer></script>
-    </head>
 
-    <nav>
-     <a href="/snips/manage-snippets">Manage Snippets</a>
-    </nav>
+    {% block scripts %}
+        <script type="module" src="/static/pages/snippet-creation.js" defer></script> 
+    {% endblock %}
 
-    <body>
+    {% block title %} Create {% endblock %}
+
+    {% block header %}
+        <h1>Snippet Creation</h1>
+    {% endblock %}
+    
+    {% block nav %}
+        <a href="/snips/manage-snippets">Manage Snippets</a>
+    {% endblock %}  
+
+    {% block main %}
        <main id="display-card" hidden>
             <pre id="display-body"><code></code></pre>
             <div id="nav-buttons">
                <button type="button" id="copy-json">Copy</button>
             </div>
         </main> 
+    {% endblock %}
 
+    {% block form %}
         <form method="post" action="/snippet-creation" id="snip-form">
 
             {{ snippet_form(langs) }} 
@@ -28,12 +37,15 @@
                 <button type="button" id="new-placeholder" hidden>${i:value}</button>
             </div>
         </form>
+    {% endblock %}
 
+    {% block states %}
         <section id="snippet-preview-container">
             <h4>Code Preview</h4>
             <pre>
                 <code id="snippet-preview-area"></code> 
             </pre>  
         </section>
-    </body>
+    {% endblock %}
+
 </html>

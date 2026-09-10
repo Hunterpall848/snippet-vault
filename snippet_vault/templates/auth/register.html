@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+<!DOCTYPE html>
+<html>
+    {% block title %} Register {% endblock %}
+
+    {% block nav %}
+    <a href="{{ url_for('snippets.index') }}">Snippet Creation</a>
+    {% endblock %}
+
+    {% block header %}
+       <h1>Register</h1> 
+    {% endblock %}
+
+    {% block form %}
+        {% include 'auth/_auth-form.html' %}
+    {% endblock %}
+
+</html>

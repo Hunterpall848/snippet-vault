@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script>{% block %}{% endblock %} defer</script>
+        {% block scripts %}{% endblock %}
         <title>{% block title %}{% endblock  %} - Snip Vault</title>
     </head>
 
@@ -30,12 +30,12 @@
     </nav> 
 
     <header>
+        {% block header %}{% endblock %}
     </header>
 
     <body>
-        <main>
             {% block main %}{% endblock %}
-        </main>
-        {% block form %}{% endblock %}
+            {% block form %}{% endblock %}
+            {% block states %}{% endblock %}
     </body>
 </html>

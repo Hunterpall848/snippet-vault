@@ -1,19 +1,17 @@
 from flask import Blueprint, jsonify, render_template, request
 
-from .auth import login_required
 from .db import get_db
 from .langs import languages
-
 
 bp = Blueprint("snippets",__name__, url_prefix="/snips")
 
 @bp.get("/")
 def index():
-    return render_template("snippet-creation.html", langs = languages)
+    return render_template("snips/snippet-creation.html", langs = languages)
 
 @bp.get("/manage-snippets")
 def manage_snippets():
-    return render_template("manage-snippets.html", langs = languages)
+    return render_template("snips/manage-snippets.html", langs = languages)
 
 @bp.route("/snippet-creation", methods=["POST"])
 def snippet_creation():

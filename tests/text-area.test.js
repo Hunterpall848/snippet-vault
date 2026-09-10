@@ -1,29 +1,29 @@
 import {describe, expect, test} from "vitest";
-import {TextBehavior, keyMaps, specialMaps} from "../static/text-area.js";
+import {SnipBodyEditor, keyMaps, specialMaps} from "../snippet_vault/static/text-area.js";
 
-function createTextBehavior(value, cursorPosition) {
+function createSnipBodyEditor(value, cursorPosition) {
     const textArea = {
         value: value,
         selectionStart: cursorPosition,
         selectionEnd: cursorPosition,
     };
     const previewArea = {textContent: ""};
-    const textBehavior = new TextBehavior(
+    const snipBodyEditor = new SnipBodyEditor(
         textArea,
         previewArea,
         keyMaps,
         specialMaps
     );
 
-    return {textArea, previewArea, textBehavior};
+    return {textArea, previewArea, snipBodyEditor};
 };
 
-describe("TextBehavior test", () => {
+describe("SnipBodyEditor test", () => {
     test("replaces a typed trigger and moves the cursor", () => {
-        const {textArea, textBehavior} = createTextBehavior('"', 1);
-        const replacementMap = textBehavior.findTextMap();
+        const {textArea, snipBodyEditor} = createSnipBodyEditor('"', 1);
+        const replacementMap = snipBodyEditor.findTextMap();
 
-        textBehavior.replaceText(replacementMap);
+        snipBodyEditor.replaceText(replacementMap);
 
         expect(textArea.value).toBe('"\\');
         expect(textArea.selectionStart).toBe(2);
@@ -31,23 +31,23 @@ describe("TextBehavior test", () => {
     });
 
     test("inserts a special-key replacement without deleting existing text", () => {
-        const {textArea, textBehavior} = createTextBehavior("abcd", 2);
-        const replacementMap = textBehavior.findKeyMap("Enter");
+        const {textArea, snipBodyEditor} = createSnipBodyEditor("abcd", 2);
+        const replacementMap = snipBodyEditor.findKeyMap("Enter");
 
-        textBehavior.replaceText(replacementMap, 0);
+        snipBodyEditor.replaceText(replacementMap, 0);
 
         expect(textArea.value).toBe("ab\\ncd");
         expect(textArea.selectionStart).toBe(4);
     });
 
     test("builds and renders readable preview text", () => {
-        const {previewArea, textBehavior} = createTextBehavior(
+        const {previewArea, snipBodyEditor} = createSnipBodyEditor(
             'console.log("hello")\\n',
             22
         );
 
-        const previewText = textBehavior.formatPreview();
-        textBehavior.renderPreview();
+        const previewText = snipBodyEditor.decodeText();
+        snipBodyEditor.renderPreview();
 
         expect(previewText).toBe('console.log("hello")\n');
         expect(previewArea.textContent).toBe(previewText);
@@ -61,20 +61,20 @@ describe("TextBehavior test", () => {
             "The last placeholder is ${3:final value}.",
         ].join("\n");
 
-        const {textArea, textBehavior} = createTextBehavior(
+        const {textArea, snipBodyEditor} = createSnipBodyEditor(
             mockText,
             mockText.length
         );
 
         expect(textArea.value).toBe(mockText);
-        expect(textBehavior.scanTextArea()).toBe(3);
-        expect(textBehavior.placeholderCount).toBe(3);
+        expect(snipBodyEditor.scanTextArea()).toBe(3);
+        expect(snipBodyEditor.placeholderCount).toBe(3);
     });
 
     test("returns zero when a mock textarea has no placeholders", () => {
         const mockText = "There are no numbered placeholders here.";
-        const {textBehavior} = createTextBehavior(mockText, mockText.length);
+        const {snipBodyEditor} = createSnipBodyEditor(mockText, mockText.length);
 
-        expect(textBehavior.scanTextArea()).toBe(0);
+        expect(snipBodyEditor.scanTextArea()).toBe(0);
     });
 });

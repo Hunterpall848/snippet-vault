@@ -1,0 +1,39 @@
+{% from "_snippet-form.html" import snippet_form %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title> New Snippet </title>
+        <script type="module" src="/static/pages/snippet-creation.js" defer></script>
+    </head>
+
+    <nav>
+     <a href="/snips/manage-snippets">Manage Snippets</a>
+    </nav>
+
+    <body>
+       <main id="display-card" hidden>
+            <pre id="display-body"><code></code></pre>
+            <div id="nav-buttons">
+               <button type="button" id="copy-json">Copy</button>
+            </div>
+        </main> 
+
+        <form method="post" action="/snippet-creation" id="snip-form">
+
+            {{ snippet_form(langs) }} 
+
+            <div>
+                <button type="submit" id="form-submit-button">Save</button>
+                <button type="button" id="new-placeholder" hidden>${i:value}</button>
+            </div>
+        </form>
+
+        <section id="snippet-preview-container">
+            <h4>Code Preview</h4>
+            <pre>
+                <code id="snippet-preview-area"></code> 
+            </pre>  
+        </section>
+    </body>
+</html>

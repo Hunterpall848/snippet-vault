@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="eng">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script>{% block %}{% endblock %} defer</script>
+        <title>{% block title %}{% endblock  %} - Snip Vault</title>
+    </head>
+
+    <nav>
+         <ul>
+            {% if g.user %}
+                <li><span>{{ g.user['username'] }}</span></li>
+                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+
+            {% else %}
+                {% if request.endpoint != 'auth.login' %}
+                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                {% endif %}
+
+                {% if request.endpoint != 'auth.register' %}
+                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                {% endif %}
+            {% endif %}
+         </ul>
+
+         <ul>
+             {% block nav %}{% endblock %} 
+         </ul>
+    </nav> 
+
+    <header>
+    </header>
+
+    <body>
+        <main>
+            {% block main %}{% endblock %}
+        </main>
+        {% block form %}{% endblock %}
+    </body>
+</html>

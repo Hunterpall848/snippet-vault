@@ -34,7 +34,7 @@ export class SnippetStore {
             return;
         };
 
-        const response = await fetch(`/${this.snipUrlPrefix}/edit-snippets/${currentId}?snippet_id=${currentId}`, {
+        const response = await fetch(`${this.snipUrlPrefix}/edit-snippets/${currentId}?snippet_id=${currentId}`, {
             method: "DELETE",
         });
 
@@ -53,7 +53,6 @@ export class SnippetStore {
         const formData = new FormData(form)
 
         const grabSnippetForm = {
-            snippet_id: formData.get("snippet_id"),
             title: formData.get("title"),
             language: formData.get("language"),
             prefix: formData.get("prefix"),

@@ -5,7 +5,7 @@
     {% block title %} Register {% endblock %}
 
     {% block nav %}
-    <a href="{{ url_for('snippets.index') }}">Snippet Creation</a>
+        <a href="{{ url_for('snippets.index') }}">Snippet Creation</a>
     {% endblock %}
 
     {% block header %}
@@ -13,7 +13,22 @@
     {% endblock %}
 
     {% block form %}
-        {% include 'auth/_auth-form.html' %}
+        <div id="auth-container">
+            <form method='post' action='{{ url_for('auth.register') }}'class="auth-form">
+                {% include 'auth/_auth-form.html' %}
+
+
+                <div class="form-group">
+                   <label for="password-validation">Varify Password</label> 
+                   <input 
+                   type="password" 
+                   name="password-validation" 
+                   placeholder="...">
+                </div>
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
     {% endblock %}
 
 </html>

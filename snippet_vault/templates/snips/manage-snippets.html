@@ -1,7 +1,7 @@
 {% from "snips/_snippet-form.html" import snippet_form %}
 {% extends 'base.html' %}
 
-<!DOCTYPE html>
+<!doctype html>
 <html>
 
     {% block scripts %}
@@ -12,15 +12,15 @@
         </script>
     {% endblock %}
 
-    {% block title %}  Vault {% endblock %}
+    {% block title %}  vault {% endblock %}
 
     {% block nav %}
-        <a href="/">Build Snippet</a> | 
-        <a href="{{ url_for('snippets.snip_api') }}">Raw Snippet Data</a>
+        <a href="/">build snippet</a> | 
+        <a href="{{ url_for('snippets.snip_api') }}">raw snippet data</a>
     {% endblock %}
 
     {% block header %}
-        <h1>{{ g.user['username'] }} - Snippet Vault</h1>
+        <h1>{{ g.user['username'] }} - snippet vault</h1>
     {% endblock %}
 
     {% block main %}
@@ -30,22 +30,28 @@
             <pre id="display-body"><code></code></pre>
 
             <div id="nav-buttons">
-               <button type="button" id="prev">Previous</button>
-               <button type="button" id="next">Next</button>
-               <button type="button" id="copy-json">Copy</button>
-               <button type="button" id="edit-snippet" >Edit</button>
+               <button type="button" id="prev">previous</button>
+               <button type="button" id="next">next</button>
+               <button type="button" id="copy-json">copy</button>
+               <button type="button" id="edit-snippet" >edit</button>
             </div>
 
-            <section id="snippet-selection">
-                <div id="language-button-list"></div>
-                <select id="snippet-menu" size="8" hidden></select>
-            </section>
 
             <pre>
                 <code id="snippet-preview-area">
                 </code> 
             </pre>  
         </main> 
+
+        <section id="snippet-selection">
+            <div id="initial-state" hidden>
+                <h3>select a saved snippet</h3>
+                <h5>using the languages below</h5>
+            </div>
+
+            <div id="language-button-list"></div>
+            <select id="snippet-menu" size="8" hidden></select>
+        </section>
     {% endblock %}
 
     {% block form %}
@@ -63,10 +69,6 @@
     {% endblock %}
 
     {% block states %}
-        <div id="initial-state" hidden>
-            <h3>Select a Saved Snippet</h3>
-            <h5>using the languages below</h5>
-        </div>
 
         <div id="empty-state" hidden>
             <h2>No Snippets Found</h2>

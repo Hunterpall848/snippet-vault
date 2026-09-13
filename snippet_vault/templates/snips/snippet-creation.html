@@ -15,7 +15,9 @@
     {% endblock %}
     
     {% block nav %}
-        <a href="/snips/manage-snippets">Manage Snippets</a>
+        {% if g.user %}
+            <a href="/snips/manage-snippets">Manage Snippets</a>
+        {% endif %}
     {% endblock %}  
 
     {% block main %}

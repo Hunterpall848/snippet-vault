@@ -58,4 +58,4 @@ const handleEvents = new HandleEvents(
 
 //runtime
 manageUi.initialPageState()
-handleEvents.bindEvents("/manage-snippets")
+handleEvents.bindEvents("snips/manage-snippets")

@@ -13,7 +13,13 @@
     {% endblock %}
 
     {% block form %}
-        {% include 'auth/_auth-form.html' %}
+        <div id="auth-container">
+            <form method='post' action='{{ url_for('auth.login') }}' class='auth-form'>
+                {% include 'auth/_auth-form.html' %}
+
+                <button type="submit">Submit</button>
+            </form>
+        </div>
     {% endblock %}
 
 </html>

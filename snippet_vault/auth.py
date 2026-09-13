@@ -22,13 +22,16 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        password_validation = request.form['password-validation']
         db = get_db()
         error = None
 
         if not username:
             error = 'username is a required field.'
-        elif not password:
+        elif not password or not password_validation:
             error = 'password is a required field.'
+        elif password != password_validation:
+            error = "passwords don't match."
 
         if error is None:
             try:
@@ -43,7 +46,7 @@ def register():
             else:
                 return redirect(url_for('auth.login'))
 
-            flash(error)
+        flash(error)
 
     return render_template('auth/register.html')
 
@@ -56,15 +59,18 @@ def login():
         db = get_db()
         error = None
 
+    
         user = db.execute(
             'SELECT * FROM user WHERE username = ?',
             (username,)
         ).fetchone()
 
-        if user is None:
-            error = 'Incorrect username'
+        if not username or not password:
+            error = 'Username and Password required'
+        elif user is None:
+            error = 'Username not recognized'
         elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password'
+            error = 'Incorrect Password'
 
         if error is None:
             session.clear()
@@ -99,7 +105,7 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login'))
         return view(**kwargs)
 
     return wrapped_view

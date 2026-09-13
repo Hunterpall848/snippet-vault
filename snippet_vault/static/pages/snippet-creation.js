@@ -47,4 +47,4 @@ const handleEvents = new HandleEvents(
 
 //runtime
 manageUi.ShowFormJson();
-handleEvents.bindEvents("/snippet-creation");
+handleEvents.bindEvents("/");

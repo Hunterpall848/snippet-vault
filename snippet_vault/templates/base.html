@@ -34,8 +34,12 @@
     </header>
 
     <body>
-            {% block main %}{% endblock %}
-            {% block form %}{% endblock %}
-            {% block states %}{% endblock %}
+        {% for message in get_flashed_messages() %}
+            <div class="flash">{{ message }}</div>
+        {% endfor %}
+
+        {% block main %}{% endblock %}
+        {% block form %}{% endblock %}
+        {% block states %}{% endblock %}
     </body>
 </html>

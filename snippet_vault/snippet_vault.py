@@ -1,17 +1,16 @@
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, flash, g, jsonify, render_template, request
 
+from .auth import login_required
 from .db import get_db
 from .langs import languages
 
 bp = Blueprint("snippets",__name__, url_prefix="/snips")
 
+
 @bp.get("/")
 def index():
     return render_template("snips/snippet-creation.html", langs = languages)
 
-@bp.get("/manage-snippets")
-def manage_snippets():
-    return render_template("snips/manage-snippets.html", langs = languages)
 
 @bp.route("/snippet-creation", methods=["POST"])
 def snippet_creation():
@@ -31,11 +30,20 @@ def snippet_creation():
     for field in required_fields:
         if not new_snip[field].strip():
             return "Required field cannot be blank.", 400
-
+    
     write_snippet_to_db(new_snip)
+
     return jsonify(new_snip), 201
 
+
+@bp.get("/manage-snippets")
+@login_required
+def manage_snippets():
+    return render_template("snips/manage-snippets.html", langs = languages)
+
+
 @bp.route("/edit-snippets/<int:snippet_id>", methods=["GET","DELETE","PATCH"])
+@login_required
 def edit_snippets(snippet_id):
     if request.method == "GET":
         editing_snip = read_snip_db(snippet_id)
@@ -47,10 +55,13 @@ def edit_snippets(snippet_id):
 
     return delete_snippet_from_db()
 
+
 @bp.get("/snippets")
+@login_required
 def snip_api():
     raw_snip_data = read_snip_db()
     return jsonify(raw_snip_data)
+
 
 def delete_snippet_from_db():
     snippet_id = request.args.get("snippet_id")
@@ -74,15 +85,17 @@ def write_snippet_to_db(snip):
             language,
             prefix,
             body,
-            description
+            description,
+            author_id
         )    
-        VALUES(?, ?, ?, ?, ?)
+        VALUES(?, ?, ?, ?, ?, ?)
     """, ( 
           snip["title"],
           snip["language"],
           snip["prefix"],
           snip["body"],
-          snip["description"]
+          snip["description"],
+          g.user['id']
     ))
     db.commit()
 
@@ -92,9 +105,16 @@ def read_snip_db(snippet_id=None):
     """
     db = get_db()
     all_rows = db.execute("""
-        SELECT *
-        FROM snippets
-    """)
+        SELECT
+            snippet_id, title, language, prefix, body, description
+        FROM 
+            snippets 
+            JOIN user ON snippets.author_id = user.id 
+        WHERE 
+            author_id = ?
+        ORDER BY 
+            snippet_id DESC
+    """, (g.user['id'],)).fetchall()
 
     if snippet_id:
         matching_snippet = next(
@@ -132,5 +152,6 @@ def update_snippet(snip, snippet_id):
         snip["description"],
         snippet_id,
     ))
+    db.commit()
 
     return jsonify(snip)

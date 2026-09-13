@@ -39,7 +39,8 @@ export class ManageUi {
         let snippetTitle = currentSnip.title;
         let snippetBody = {
             prefix: currentSnip.prefix,
-            body: currentSnip.body
+            body: currentSnip.body,
+            description: currentSnip.description
         };
         let formattedSnippet = {[snippetTitle]: snippetBody};
         return formattedSnippet;
@@ -62,6 +63,7 @@ export class ManageUi {
             title: formData.get("title"),
             prefix: formData.get("prefix"),
             body: this.snipBodyEditor.decodeText(),
+            description: formData.get("description")
         };
         const formattedSnippet = this.reformatSnippet(draftSnippet);
 
@@ -149,8 +151,6 @@ export class ManageUi {
         this.snippetStore.updateActiveId(newSnip.snippet_id);
         return newSnip; 
     };
-
-    buildNextSnippet
 };
 
 
@@ -338,6 +338,14 @@ export class HandleEvents {
                 "#snip-form", 
                 "POST"
             );
+
+        this.manageUi.ShowFormJson();
+        this.snipBodyEditor.renderPreview();
+
+        this.elements.formButton.textContent = "Saved"
+        setTimeout(() => {
+           this.elements.formButton.textContent = "Save"
+        }, 4000);
         });
     };
 
@@ -399,7 +407,7 @@ export class HandleEvents {
     };
 
     bindEvents(page) {
-        if (page === "/") {
+        if (page === "snips/manage-snippets") {
             this.nextButton();
             this.prevButton();
             this.languageButtons();
@@ -414,7 +422,7 @@ export class HandleEvents {
             this.showPlaceholderButton();
             return;
         };
-        if (page === "/snippet-creation") {
+        if (page === "/") {
             this.submitNewSnipButton();
             this.textAreaBehavior();
             this.liveSnippetDisplay();

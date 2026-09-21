@@ -14,6 +14,7 @@ const manageSnipsElements = {
     displayCard: document.querySelector("#display-card"),
     initialState: document.querySelector("#initial-state"),
     emptyState: document.querySelector("#empty-state"),
+    snippetView: document.querySelector("#snippet-view"),
     displayTitle: document.querySelector("#display-title"),
     displayPrefix: document.querySelector("#display-prefix"),
     displayBody: document.querySelector("#display-body"),
@@ -42,7 +43,13 @@ const snipBodyEditor = new SnipBodyEditor(
     specialMaps
 );
 const snippetStore = new SnippetStore()
-const snippetListRenderer = new SnippetListRenderer(snippetStore, manageSnipsElements);
+const snippetListRenderer = new SnippetListRenderer(
+    snippetStore, 
+    {
+        languageButtonList: manageSnipsElements.languageButtonList,
+        snippetMenu: manageSnipsElements.snippetMenu,
+    },
+);
 const manageUi = new ManageUi(
     snippetStore, 
     snippetListRenderer, 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% set content_size = 'content--compact' %}
 
 <!DOCTYPE html>
 <html>
@@ -9,22 +10,20 @@
     {% endblock %}
 
     {% block header %}
-       <h1>Register</h1> 
+       <pre>
+        ▗▄▄▖ ▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▖ 
+        ▐▌ ▐▌▐▌   ▐▌     █  ▐▌     █  ▐▌   ▐▌ ▐▌
+        ▐▛▀▚▖▐▛▀▀▘▐▌▝▜▌  █   ▝▀▚▖  █  ▐▛▀▀▘▐▛▀▚▖
+        ▐▌ ▐▌▐▙▄▄▖▝▚▄▞▘▗▄█▄▖▗▄▄▞▘  █  ▐▙▄▄▖▐▌ ▐▌        
+        </pre> 
     {% endblock %}
 
-    {% block form %}
-        <div id="auth-container">
-            <form method='post' action='{{ url_for('auth.register') }}'class="auth-form">
+    {% block content %}
+        <div id="auth-container" class="auth">
+            <form method='post' action='{{ url_for('auth.register') }}'class="auth__form">
+
+                {% set show_password_val = true %}
                 {% include 'auth/_auth-form.html' %}
-
-
-                <div class="form-group">
-                   <label for="password-validation">Varify Password</label> 
-                   <input 
-                   type="password" 
-                   name="password-validation" 
-                   placeholder="...">
-                </div>
 
                 <button type="submit">Submit</button>
             </form>

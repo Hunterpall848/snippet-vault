@@ -1,5 +1,7 @@
-{% from "snips/_snippet-form.html" import snippet_form %}
 {% extends 'base.html' %}
+{% from "snips/_snippet-form.html" import snippet_form %}
+{% set upper_layout = "grid" %}
+{% set form_size = "compact" %} 
 
 <!doctype html>
 <html>
@@ -20,60 +22,74 @@
     {% endblock %}
 
     {% block header %}
-        <h1>{{ g.user['username'] }} - snippet vault</h1>
+        <img src="{{ url_for('static', filename='images/manager-title.png') }}" alt="Snippet Vault">
+        <h5>▂▃▅▆▇▉ {{ g.user['username'] }}</h5>
     {% endblock %}
 
     {% block main %}
-        <main id="display-card" hidden>
-            <h4 id="display-title"><code></code></h3>
-            <h5 id="display-prefix"><code></code></h4>
-            <pre id="display-body"><code></code></pre>
+        <main id="display-card" class="snippetcard">
 
-            <div id="nav-buttons">
-               <button type="button" id="prev">previous</button>
-               <button type="button" id="next">next</button>
-               <button type="button" id="copy-json">copy</button>
-               <button type="button" id="edit-snippet" >edit</button>
+
+            <div id="initial-state" class="snippetcard__initialstate" hidden>
+                <h5>Select a <span>saved snippet</span> using the above languages...</h5>
             </div>
 
+            <div id="empty-state" class="snippetcard__emptystate" hidden>
+                <h2>No Snippets Found</h2>
+                <a href="{{ url_for('index') }}">Make New Snippet</a>
+            </div>
 
-            <pre>
-                <code id="snippet-preview-area">
-                </code> 
-            </pre>  
+            <div id="snippet-view" class="snippetcard__view" hidden>
+                <div class="snippetcard__heading">
+                    <h4 id="display-title" class="snippetcard__title" ><code></code></h4>
+                    <h5 id="display-prefix" class="snippetcard__prefix" ><code></code></h5>
+                </div>
+
+                <pre id="display-body" class="snippetcard__body" ><code></code></pre>
+
+                <div id="nav-buttons" class="snippetcard__actions">
+                   <button type="button" id="prev">previous</button>
+                   <button type="button" id="next">next</button>
+                   <button type="button" id="copy-json">copy</button>
+                   <button type="button" id="edit-snippet" >edit</button>
+                </div>
+            </div>
         </main> 
 
-        <section id="snippet-selection">
-            <div id="initial-state" hidden>
-                <h3>select a saved snippet</h3>
-                <h5>using the languages below</h5>
-            </div>
+        <div class="snippetcard__langbuttons">
+            <div id="language-button-list" class="buttonmenu__langbuttons"></div>
+        </div>
 
-            <div id="language-button-list"></div>
+        <div class="snippetcard__snipbuttons">
             <select id="snippet-menu" size="8" hidden></select>
-        </section>
+        </div>
+    {% endblock %}
+
+    {% block lower_main %}
+        <div id="snippet-preview-container" class="snippetpreview">
+            <h4>Code Preview</h4>
+            <pre><code id="snippet-preview-area"></code></pre>  
+        </div>
     {% endblock %}
 
     {% block form %}
-        <form id="snip-form" hidden>
-            {{ snippet_form(langs) }} 
+        <form id="snip-form" class="snippetform snippetform--compact" hidden>
+            {{ snippet_form(langs, 'compact') }} 
 
-            <div>
+            <div class="snippetform__actions">
                 <button type="submit" id="form-submit-button">Update</button>
                 <button type="button" id="delete-button">Delete</button>
                 <button type="button" id="close-edit">Close</button>
-                <button type="button" id="new-placeholder" hidden>${i:value}</button>
+                <button 
+                    type="button" 
+                    id="new-placeholder" 
+                    class="snippetform__button" 
+                    hidden
+                >${i:value}</button>
             </div>
 
         </form>
     {% endblock %}
 
-    {% block states %}
-
-        <div id="empty-state" hidden>
-            <h2>No Snippets Found</h2>
-            <h3><a href="{{ url_for('index') }}">Make New Snippet</a></h3>
-        </div>
-    {% endblock %}
 
 </html>

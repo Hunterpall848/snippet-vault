@@ -1,7 +1,6 @@
 import { SnippetStore } from "/static/snippet-store.js";
 import {
     ManageUi,
-    SnippetListRenderer,
     HandleEvents
 } from "/static/ui-management.js";
 import {
@@ -31,17 +30,16 @@ const snipBodyEditor = new SnipBodyEditor(
     specialMaps
 );
 const snippetStore = new SnippetStore()
-const snippetListRenderer = new SnippetListRenderer(snippetStore, snippetCreationElements);
 const manageUi = new ManageUi(
     snippetStore, 
-    snippetListRenderer, 
+    null, 
     snipBodyEditor, 
     snippetCreationElements 
 );
 const handleEvents = new HandleEvents(
     snippetStore,
     manageUi,
-    snippetListRenderer,
+    null,
     snipBodyEditor,
     snippetCreationElements);
 

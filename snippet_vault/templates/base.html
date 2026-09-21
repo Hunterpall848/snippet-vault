@@ -3,43 +3,60 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet "href="{{ url_for('static', filename='styles/styles.css') }}">
         {% block scripts %}{% endblock %}
         <title>{% block title %}{% endblock  %} - Snip Vault</title>
     </head>
 
-    <nav>
-         <ul>
-            {% if g.user %}
-                <li><span>{{ g.user['username'] }}</span></li>
-                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-
-            {% else %}
-                {% if request.endpoint != 'auth.login' %}
-                    <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                {% endif %}
-
-                {% if request.endpoint != 'auth.register' %}
-                    <li><a href="{{ url_for('auth.register') }}">Register</a></li>
-                {% endif %}
-            {% endif %}
-         </ul>
-
-         <ul>
-             {% block nav %}{% endblock %} 
-         </ul>
-    </nav> 
-
-    <header>
-        {% block header %}{% endblock %}
-    </header>
-
     <body>
-        {% for message in get_flashed_messages() %}
-            <div class="flash">{{ message }}</div>
-        {% endfor %}
+        <nav class="nav">
 
-        {% block main %}{% endblock %}
-        {% block form %}{% endblock %}
-        {% block states %}{% endblock %}
+             <ul class="nav__snippets">
+                 {% block nav %}{% endblock %} 
+             </ul>
+
+             <ul class="nav__auth">
+                {% if g.user %}
+                    <li><span>{{ g.user['username'] }}</span></li>
+                    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+
+                {% else %}
+                    {% if request.endpoint != 'auth.login' %}
+                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                    {% endif %}
+
+                    {% if request.endpoint != 'auth.register' %}
+                        <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                    {% endif %}
+                {% endif %}
+             </ul>
+        </nav> 
+
+        <div class="document">
+            <div class="document__wrapper">
+
+                <header>
+                    {% block header %}{% endblock %}
+                </header>
+
+                <div class="content {{ content_size | default("") }}">
+                    {% for message in get_flashed_messages() %}
+                        <div class="flash">{{ message }}</div>
+                    {% endfor %}
+
+                    {% block content %}
+                        <div class="content__upper content__upper--{{ upper_layout | default('flex') }}">
+                            {% block main %}{% endblock %}
+                            {% block form %}{% endblock %}
+                        </div>
+
+                        <div class="content__lower">
+                            {% block lower_main %}{% endblock %} 
+                        </div>
+                            
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
     </body>
 </html>

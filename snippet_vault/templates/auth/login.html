@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% set content_size = 'content--compact' %}
 
 <!DOCTYPE html>
 <html>
@@ -9,12 +10,17 @@
     {% endblock %}
 
     {% block header %}
-       <h1>Login</h1> 
+       <pre>
+        ▗▖    ▗▄▖  ▗▄▄▖▗▄▄▄▖▗▖  ▗▖
+        ▐▌   ▐▌ ▐▌▐▌     █  ▐▛▚▖▐▌
+        ▐▌   ▐▌ ▐▌▐▌▝▜▌  █  ▐▌ ▝▜▌
+        ▐▙▄▄▖▝▚▄▞▘▝▚▄▞▘▗▄█▄▖▐▌  ▐▌        
+       </pre> 
     {% endblock %}
 
-    {% block form %}
-        <div id="auth-container">
-            <form method='post' action='{{ url_for('auth.login') }}' class='auth-form'>
+    {% block content %}
+        <div id="auth-container" class="auth">
+            <form method='post' action='{{ url_for('auth.login') }}' class='auth__form'>
                 {% include 'auth/_auth-form.html' %}
 
                 <button type="submit">Submit</button>

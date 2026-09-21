@@ -1,5 +1,6 @@
-{% from "snips/_snippet-form.html" import snippet_form %}
 {% extends "base.html" %}
+{% from "snips/_snippet-form.html" import snippet_form %}
+{% set upper_layout = "flex" %}
 
 <!DOCTYPE html>
 <html>
@@ -11,7 +12,7 @@
     {% block title %} Create {% endblock %}
 
     {% block header %}
-        <h1>Snippet Creation</h1>
+        <img src="{{ url_for('static', filename='images/index-title.png') }}" alt="Snippet Creation">
     {% endblock %}
     
     {% block nav %}
@@ -21,33 +22,64 @@
     {% endblock %}  
 
     {% block main %}
-       <main id="display-card" hidden>
-            <pre id="display-body"><code></code></pre>
-            <div id="nav-buttons">
-               <button type="button" id="copy-json">Copy</button>
+       <main id="display-card" class="snippetcard" hidden>
+
+            <pre id="display-body" class="snippetcard__body"><code></code></pre>
+
+            <div id="nav-buttons" class="snippetcard__actions">
+               <button 
+                   type="button" 
+                   id="copy-json" 
+                   class="snippetcard__button snippetcard__button--enabled" 
+                   disabled
+                >Copy</button>
             </div>
         </main> 
     {% endblock %}
 
     {% block form %}
-        <form method="post" action="/snippet-creation" id="snip-form">
+        <form 
+            method="post" 
+            action="/snippet-creation" 
+            id="snip-form" 
+            class="snippetform">
 
             {{ snippet_form(langs) }} 
 
-            <div>
-                <button type="submit" id="form-submit-button">Save</button>
-                <button type="button" id="new-placeholder" hidden>${i:value}</button>
+           <div class="snippetform__actions">
+                <button 
+                    type="button" 
+                    id="new-placeholder" 
+                    class="snippetform__button snippetform__button--showing" 
+                    hidden>${i:value}
+                </button>
+
+                {% if not g.user %}
+                    <button 
+                        type="submit" 
+                        id="form-submit-button" 
+                        class="snippetform__button" 
+                        disabled
+                    >Login to Save</button>
+                {% endif %}
+
+                {% if g.user %}
+                    <button 
+                        type="submit" 
+                        id="form-submit-button" 
+                        class="snippetform__button snippetform__button--enabled" 
+                        disabled
+                    >Save</button>
+                {% endif %}
             </div>
         </form>
     {% endblock %}
 
-    {% block states %}
-        <section id="snippet-preview-container">
+    {% block lower_main %}
+        <div id="snippet-preview-container" class="snippetpreview">
             <h4>Code Preview</h4>
-            <pre>
-                <code id="snippet-preview-area"></code> 
-            </pre>  
-        </section>
+            <pre><code id="snippet-preview-area"></code></pre>  
+        </div>
     {% endblock %}
 
 </html>

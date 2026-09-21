@@ -1,8 +1,8 @@
-/*  owns all snippet data and indexpositions
+/**  owns all snippet data and indexpositions
  *  manages the state change of snippets and changes made to snippets through APIs
  */
 export class SnippetStore {
-    
+
     constructor() {
         this.allSnips = [];
         this.currentSnipId = null;
@@ -47,34 +47,25 @@ export class SnippetStore {
         return;
     };
 
-    async submitSnip(event, endpoint, formName, method) {
-        event.preventDefault();
-        const form = document.querySelector(formName)
-        const formData = new FormData(form)
+    /** @param {Object} formPayload - structured snippet formdata.*/
+    async submitSnip(event, endpoint, method, formPayload) {
 
-        const grabSnippetForm = {
-            title: formData.get("title"),
-            language: formData.get("language"),
-            prefix: formData.get("prefix"),
-            body: formData.get("body"),
-            description: formData.get("description"),
-        };
+        event.preventDefault();
 
         const response = await fetch(endpoint, {
             method: method,
             headers: {
                 "Content-Type":"application/json"
             },
-            body: JSON.stringify(grabSnippetForm),
+            body: JSON.stringify(formPayload),
         });
         if (!response.ok) {
             console.log("Save failed.");
-            return;
+            return false;
         };
 
-        form.reset();
         console.log("Save Success.");
-        return;
+        return true;
     };
 
     getCurrentSnippet() {
@@ -114,5 +105,14 @@ export class SnippetStore {
             return snippet.snippet_id === snipId;
         });
         return currentIndex;
+    };
+
+    async presentLanguages() {
+        const allSnips = await this.refreshSnips()
+        const languages = new Set([]); 
+        allSnips.forEach ((snip) => {
+            languages.add(snip.language);
+        });
+        return languages;
     };
 };

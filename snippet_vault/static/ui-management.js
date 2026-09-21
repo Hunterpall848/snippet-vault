@@ -1,3 +1,4 @@
+
 export class ManageUi {
 
     /**
@@ -12,12 +13,17 @@ export class ManageUi {
         this.elements = elements;
     };
 
+    showCardState(state) {
+        this.elements.initialState.hidden = state !== "initial";
+        this.elements.emptyState.hidden = state !== "empty";
+        this.elements.snippetView.hidden = state !== "snippet";
+    };
+
     async initialPageState() {
         const allSnips = await this.snippetStore.refreshSnips()
 
         if (allSnips.length == 0) {
-            this.elements.displayCard.hidden = true;
-            this.elements.emptyState.hidden = false;
+            this.showCardState("empty");
             return;
         };
 
@@ -30,9 +36,23 @@ export class ManageUi {
             return;
         };
 
-        this.elements.initialState.hidden = false;
-        this.elements.displayCard.hidden = true;
+        this.showCardState("initial");
         return;
+    };
+    
+    /** @param {HTMLFormElement} form - queried html form element */
+    grabFormData(formName) {
+        const formData = new FormData(formName)
+
+        const formPayload = {
+            title: formData.get("title"),
+            language: formData.get("language"),
+            prefix: formData.get("prefix"),
+            body: formData.get("body"),
+            description: formData.get("description"),
+        };
+
+        return formPayload;
     };
 
     reformatSnippet(currentSnip) {
@@ -53,20 +73,18 @@ export class ManageUi {
         this.elements.displayPrefix.textContent = currentSnip.prefix;
         this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
 
-        this.elements.displayCard.hidden = false;
-        this.elements.initialState.hidden = true;
+        this.showCardState("snippet");
     };
 
-    ShowFormJson() {
-        const formData = new FormData(this.elements.form);
-        const draftSnippet = {
-            title: formData.get("title"),
-            prefix: formData.get("prefix"),
-            body: this.snipBodyEditor.decodeText(),
-            description: formData.get("description")
-        };
+    ShowFormJson(form = this.elements.form) {
+        const draftSnippet = this.grabFormData(form);
+        draftSnippet.body = this.snipBodyEditor.decodeText();
         const formattedSnippet = this.reformatSnippet(draftSnippet);
 
+        if (this.elements.displayTitle) {
+            this.elements.displayTitle.textContent = draftSnippet.title;
+            this.elements.displayPrefix.textContent = draftSnippet.prefix;
+        };
         this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
         this.elements.displayCard.hidden = false;
     };
@@ -80,20 +98,18 @@ export class ManageUi {
         this.elements.snippetMenu.replaceChildren()
         this.snippetListRenderer.createLanguageList(allSnips)
 
-        if (!snippetId) {
-            this.elements.displayCard.hidden = true;
-            this.elements.initialState.hidden = false;
-            this.elements.snippetMenu.hidden = true;
-            return;
-        };
-
         if (allSnips.length === 0) {
-            this.elements.displayCard.hidden = true;
-            this.elements.emptyState.hidden = false;
+            this.elements.snippetMenu.hidden = true;
+            this.showCardState("empty");
             return;
         };
 
-        this.elements.emptyState.hidden = true;
+        if (!snippetId) {
+            this.elements.snippetMenu.hidden = true;
+            this.showCardState("initial");
+            return;
+        };
+
         this.showSnippetJson(currentSnip);
     }
 
@@ -151,8 +167,15 @@ export class ManageUi {
         this.snippetStore.updateActiveId(newSnip.snippet_id);
         return newSnip; 
     };
-};
 
+    /** @param {array} elements - array of elements to clear text from */
+    clearText(elements) {
+        elements.forEach(element => {
+             element.textContent = "";
+         });
+        return;
+    };
+}
 
 
 export class SnippetListRenderer {
@@ -166,17 +189,8 @@ export class SnippetListRenderer {
         this.elements = elements;
     };
 
-    async presentLanguages() {
-        const allSnips = await this.snippetStore.refreshSnips()
-        const languages = new Set([]); 
-        allSnips.forEach ((snip) => {
-            languages.add(snip.language);
-        });
-        return languages;
-    };
-
     async createLanguageList() {
-        const allLanguages = await this.presentLanguages();
+        const allLanguages = await this.snippetStore.presentLanguages();
 
         allLanguages.forEach ((lang) => {
             const languageButton = document.createElement("button");
@@ -216,9 +230,15 @@ export class SnippetListRenderer {
 };
 
 
-
 export class HandleEvents {
     
+    /**
+     * @param {import("./snippet-store.js").SnippetStore} snippetStore
+     * @param {ManageUi} manageUi
+     * @param {SnippetListRenderer} snippetListRenderer
+     * @param {Object} snipBodyEditor
+     * @param {Object} elements
+     */
     constructor(snippetStore, manageUi, snippetListRenderer, snipBodyEditor, elements) {
         this.elements = elements;
         this.snippetStore = snippetStore;
@@ -227,6 +247,16 @@ export class HandleEvents {
         this.snippetListRenderer = snippetListRenderer;
     };
     
+    /** @param {string} inputValueType - value to be passed to the dispatchEvent 'inputType' property */
+    sendInputEvent(inputTypeValue) {
+        this.elements.textArea.dispatchEvent(
+            new InputEvent("input", {
+                bubbles: true,
+                inputType: inputTypeValue 
+            })
+        );
+    };
+
     nextButton() {
         this.elements.nextButton.addEventListener("click", () => {
             const nextSnippet = this.manageUi.changeCurrentSnippet(+1);
@@ -256,7 +286,19 @@ export class HandleEvents {
             let clickedLanguage = clickedLangButton.dataset.language;
             this.elements.snippetMenu.replaceChildren()
             this.snippetListRenderer.createSnippetList(this.snippetStore.allSnips, clickedLanguage);
+
+            this.elements.languageButtonList.querySelectorAll("button").forEach(button => {
+                button.setAttribute("aria-pressed", "false")
+            });
+            clickedLangButton.setAttribute("aria-pressed", "true")
+
             this.elements.snippetMenu.hidden = false; 
+
+            this.elements.snippetMenu.animate(
+                [{ opacity: 0 }, { opacity: 1 }],
+                { duration: 300, easing: "ease-in" }
+            );
+
             return;
         });
     };
@@ -266,9 +308,13 @@ export class HandleEvents {
             let snippetId = Number(snipEvent.target.value);
             this.snippetStore.updateActiveId(snippetId);
 
-            const currentSnip = this.snippetStore.getCurrentSnippet()
-            this.manageUi.showSnippetJson(currentSnip)
+            const currentSnip = this.snippetStore.getCurrentSnippet();
             this.elements.editForm.hidden = true;
+
+            this.manageUi.showSnippetJson(currentSnip);
+
+            this.elements.textArea.value = currentSnip.body;
+            this.snipBodyEditor.renderPreview();
         });
     };
 
@@ -281,6 +327,12 @@ export class HandleEvents {
     closeEditButton() {
         this.elements.closeEditButton.addEventListener("click", () => {
             this.elements.editForm.hidden = true;
+            const savedSnippet = this.snippetStore.getCurrentSnippet();
+            this.manageUi.showSnippetJson(savedSnippet);
+            this.elements.textArea.value = savedSnippet.body;
+            this.snipBodyEditor.renderPreview();
+
+            this.manageUi.clearText([this.elements.previewArea, this.elements.displayBody]);
         });
     };
     
@@ -291,6 +343,8 @@ export class HandleEvents {
             this.snippetStore.refreshSnips();
 
             this.manageUi.updatePageState();
+
+            this.manageUi.clearText([this.elements.previewArea, this.elements.displayBody])
         });
     };
 
@@ -313,19 +367,22 @@ export class HandleEvents {
     submitEditButton() {
         this.elements.formSubmitButton.addEventListener("click", async(event) => {
             event.preventDefault();
-            let editedSnipId = this.snippetStore.getCurrentSnippet().snippet_id;
-            await this.snippetStore.submitSnip(
+            const editedSnipId = this.snippetStore.getCurrentSnippet().snippet_id;
+            const formPayload = this.manageUi.grabFormData(this.elements.editForm);
+            const saveSucceeded = await this.snippetStore.submitSnip(
                 event,
                 `${this.snippetStore.snipUrlPrefix}/edit-snippets/${editedSnipId}`,
-                "#snip-form",
-                "PATCH"
+                "PATCH",
+                formPayload
             );
 
-            this.snippetStore.refreshSnips()
+            if (!saveSucceeded) {
+                return;
+            };
 
             this.elements.editForm.hidden = true;
             this.elements.snippetMenu.hidden = true;
-            this.manageUi.updatePageState(editedSnipId);
+            await this.manageUi.updatePageState(editedSnipId);
         });
     };
 
@@ -333,25 +390,52 @@ export class HandleEvents {
         this.elements.formButton.addEventListener("click", async(event) => {
             event.preventDefault();
 
+            const formPayload = this.manageUi.grabFormData(this.elements.form)
+
             await this.snippetStore.submitSnip(event, 
                 `${this.snippetStore.snipUrlPrefix}/snippet-creation`, 
-                "#snip-form", 
-                "POST"
+                "POST",
+                formPayload
             );
 
-        this.manageUi.ShowFormJson();
-        this.snipBodyEditor.renderPreview();
+            this.manageUi.ShowFormJson();
+            this.snipBodyEditor.renderPreview();
 
-        this.elements.formButton.textContent = "Saved"
-        setTimeout(() => {
-           this.elements.formButton.textContent = "Save"
-        }, 4000);
+            this.elements.form.reset()
+            this.sendInputEvent("deleteContentBackwards")
+
+            this.elements.formButton.textContent = "Saved"
+            setTimeout(() => {
+                this.elements.formButton.textContent = "Save"
+            }, 4000);
         });
     };
 
-    liveSnippetDisplay() {
+    liveSnippetDisplay(form) {
+        form.addEventListener("input", () => {
+            this.manageUi.ShowFormJson(form);
+        });
+    };
+
+    /** @param {array} buttons - an array of button HTMLObjects */
+    formListener(buttons) {
         this.elements.form.addEventListener("input", () => {
-            this.manageUi.ShowFormJson();
+            const formPayload = this.manageUi.grabFormData(this.elements.form)
+
+            const formValidation = Object.values(formPayload).every((formField) => {
+                if (formField === null || formField.trim() === "") {
+                    return false;
+                };
+                return true;
+            });
+
+            buttons.forEach(button => {
+                if (formValidation === true) {
+                    button.disabled = false;
+                } else {
+                    button.disabled = true
+                };
+            });
         });
     };
 
@@ -381,19 +465,41 @@ export class HandleEvents {
             keyDownEvent.preventDefault();
             this.snipBodyEditor.replaceText(replacementMap, 0);
             this.snipBodyEditor.renderPreview();
+
+            this.sendInputEvent("insertReplacementText");
+
         });
+    };
+
+    hidePlaceholderButton() {
+        const button = this.elements.newPlaceholder;
+
+        if (button.hidden || button.classList.contains("snippetform__button--hiding")) {
+            return;
+        };
+
+        button.classList.add("snippetform__button--hiding");
+        button.addEventListener("animationend", (event) => {
+            if (event.animationName !== "hide-button") {
+                return;
+            };
+
+            button.hidden = true;
+            button.classList.remove("snippetform__button--hiding");
+        }, {once: true});
     };
 
     showPlaceholderButton() {
         this.elements.textArea.addEventListener("selectionchange", () => {
             const highlightCheck = this.snipBodyEditor.sliceHighlighted();
+            const button = this.elements.newPlaceholder;
 
             if (highlightCheck === undefined) {
-                //hides button if  slicehighlighted returns undefined
-                this.elements.newPlaceholder.hidden = true;
+                this.hidePlaceholderButton();
                 return;
             };
-            this.elements.newPlaceholder.hidden = false;
+
+            button.hidden = false;
         });
     };
 
@@ -402,7 +508,9 @@ export class HandleEvents {
             const highlightedTextData = this.snipBodyEditor.sliceHighlighted();
             this.snipBodyEditor.createPlaceholder(highlightedTextData);
 
-            this.elements.newPlaceholder.hidden = true;
+            this.sendInputEvent("insertReplacementText");
+
+            this.hidePlaceholderButton();
         });
     };
 
@@ -418,14 +526,16 @@ export class HandleEvents {
             this.submitEditButton();
             this.copyJsonButton();
             this.textAreaBehavior();
+            this.liveSnippetDisplay(this.elements.editForm);
             this.placeholderButton();
             this.showPlaceholderButton();
             return;
         };
         if (page === "/") {
+            this.formListener([this.elements.formButton, this.elements.copyButton])
             this.submitNewSnipButton();
             this.textAreaBehavior();
-            this.liveSnippetDisplay();
+            this.liveSnippetDisplay(this.elements.form);
             this.copyJsonButton();
             this.placeholderButton();
             this.showPlaceholderButton();

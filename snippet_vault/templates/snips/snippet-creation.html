@@ -18,6 +18,8 @@
     {% block nav %}
         {% if g.user %}
             <a href="/snips/manage-snippets">Manage Snippets</a>
+        {% else %}
+            <a href="/auth/login">Manage Snippets</a>
         {% endif %}
     {% endblock %}  
 

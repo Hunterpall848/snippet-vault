@@ -44,5 +44,5 @@ const handleEvents = new HandleEvents(
     snippetCreationElements);
 
 //runtime
-manageUi.ShowFormJson();
+manageUi.displayLiveSnip();
 handleEvents.bindEvents("/");

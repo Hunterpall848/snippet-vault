@@ -1,10 +1,14 @@
 * {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;
+  padding: 2;
+  border-radius: 8px;
 }
 html {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "JetBrains Mono", monospace;
+  font-style: normal;
+  font-weight: 200;
+  font-optical-sizing: auto;
   background-color: #151217;
   font-size: clamp(16px, 1vw + 12px, 24px);
   padding: 1rem;
@@ -42,11 +46,8 @@ header {
 header > img{
   Width: 800px;
   height: auto;
-  padding: 10px 30px 2px;
+  padding: 10px 30px 15px;
   align-self: self-start;
-}
-header > h5 {
-  align-self: self-end;
 }
 .nav {
   display: flex;
@@ -73,8 +74,7 @@ header > h5 {
 .content {
   display: flex;
   width: 100%;
-  height: 100dvh;
-  padding: 25px;
+  padding: 10px;
   flex-direction: column;
   align-items: stretch;
   border: 4px solid black;
@@ -82,7 +82,8 @@ header > h5 {
 }
 .content__upper {
   gap: 1rem;
-  flex: 3;
+  flex: 2 0 auto;
+  min-height: 60dvh;
 }
 .content__upper--grid {
   display: grid;
@@ -102,7 +103,7 @@ header > h5 {
   margin-top: 16px;
   margin-bottom: 16px;
   border: 2px solid black;
-  flex: 1;
+  flex: 1 0 auto;
 }
 
 
@@ -161,21 +162,97 @@ header > h5 {
   white-space: pre;
   background: #e6ebf2;
   padding: 10px;
-  font-size: 18px;
+  font-size: 14px;
 }
+
+/* buttons */
 .snippetform__button,
 .snippetcard__actions > button,
-.snippetform__actions > button{
+.snippetform__actions > button,
+.auth__form > button{
   flex: 1;
   min-width: 0;
-  background-color: #91a1cc;
+  background-color: #b4a7c2;
+  padding: 2px #3a393b;
+  border: 1.5px solid #3a393b;
+  box-shadow: 0 0 0 #3a393b;
+  margin: 0 5px 0;
+   
+  transition:
+    transform 300ms ease,
+    box-shadow 400ms ease;
+}
+.snippetform__button:not([disabled]),
+.snippetcard__actions > button:not([disabled]),
+.snippetform__actions > button:not([disabled]),
+.auth__form > button{
+  box-shadow: 4px 4px 0 #3a393b;
+}
+.snippetform__button:hover,
+.snippetcard__actions > button:hover,
+.snippetform__actions > button:hover,
+.auth__form > button:hover{
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 #3a393b;
 }
 .snippetform__button--showing:not([hidden]) {
   animation: show-button 200ms ease-out;
+  margin-right: 6px;
 }
 .snippetform__button.snippetform__button--hiding {
   animation: hide-button 200ms ease-in;
 }
+.snippetcard__langbuttons {
+  display: flex;
+}
+.buttonmenu__langbuttons {
+  display: flex;
+  flex: 1;
+  border: 4px solid #3a393b;
+  background: #3a393b;
+}
+.buttonmenu__langbuttons > button {
+  flex: 1;
+  border: 1px solid black;
+  background: #bebac2;
+  box-shadow: 0 0 0 #212121;
+  
+  transition: 
+    transform 500ms ease,
+    box-shadow 500ms ease;
+}
+.buttonmenu__langbuttons > button:hover,
+.buttonmenu__langbuttons > button[aria-pressed="true"] {
+  background: #e7e4eb;
+  border: 1px solid #bebac2;
+  
+  box-shadow: 0 -10px 0 #212121;
+  transform: translateY(10px);
+}
+.snippetcard__snipbuttons > select {
+  flex: 1;
+}
+.snippetcard__snipbuttons > select > option {
+  font-size: 16px;
+  padding: 10px 10px 5px;
+  margin-top: 3px;
+  border-radius: 1;
+  border-bottom: 0.75px solid black;
+  box-shadow: 0 3px 0 black;
+  
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+.snippetcard__snipbuttons > select > option:hover,
+.snippetcard__snipbuttons > select > option:checked {
+  background: #bebac2;
+  box-shadow: 0 0 0 black;
+  transform: translateY(3px)
+  
+  
+}
+
 .content__upper--grid > .snippetcard__langbuttons {
   grid-column: 1 / 3;
   grid-row: 1;
@@ -208,43 +285,37 @@ header > h5 {
     box-shadow 150ms ease;
 }
 
+/* nav bar */
+.nav__auth > a,
+.nav__snippets > a {
+  text-decoration: none;
+  color: #211d24;
+  border: 1px solid black;
+  padding: 8px;
+  
+  background-color: transparent;
+  box-shadow: 4px 4px 0 black;
+  
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+.nav__auth > a:hover,
+.nav__snippets > a:hover {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 black;
+}
+.nav__auth > p {
+  align-content: flex-end;
+}
+
+
 .snippetcard__emptystate > a:hover {
   transform: translate(3px, 3px);
   box-shadow: 0 0 0 #3a393b;
 }
-.snippetcard__langbuttons {
-  display: flex;
-}
-.buttonmenu__langbuttons {
-  display: flex;
-  flex: 1;
-  border: 4px solid #3a393b;
-  background: #3a393b;
-}
-.buttonmenu__langbuttons > button {
-  flex: 1;
-  border: 1px solid black;
-  background: #bebac2;
-  transition: transform 500ms ease;
-}
-.buttonmenu__langbuttons > button:hover,
-.buttonmenu__langbuttons > button[aria-pressed="true"] {
-  background: #e7e4eb;
-  border: 1px solid #bebac2;
-  border-radius: 5px;
-  transform: scaleX(0.925);
-}
-.snippetcard__snipbuttons > select {
-  flex: 1;
-}
-.snippetcard__snipbuttons > select > option {
-  font-size: 16px;
-  padding: 8px 0px 2px;
-  border-bottom: 0.5px solid black;
-}
-.snippetcard__snipbuttons > select > option:hover {
-  background: #bebac2;
-}
+
 .snippetcard__heading {
   display: flex;
   gap: 10px;
@@ -263,9 +334,7 @@ header > h5 {
 .snippetcard__initialstate > h5 > span {
   color: #655675;
 }
-header > h5 {
-  text-align: right;
-}
+
 
 /* _snippet-form.html */
 .snippetform__group {
@@ -277,7 +346,7 @@ header > h5 {
 .snippetform__group > input:hover,
 .snippetform__group > select:hover,
 .snippetform__group > textarea:hover {
-  background: #B5B5B5;
+  background: #d8dde3;
   border: 2px solid #91a1cc;
 }
 .snippetform__group > input,
@@ -354,7 +423,6 @@ header > h5 {
 /* auth */
 header > pre {
   margin: 50px;
-  border-bottom: 4px double black
 }
 .content--compact {
   width: fit-content;
@@ -381,7 +449,7 @@ header > pre {
   transition: box-shadow 300ms ease-in;
 }
 .auth__form:hover {
-  box-shadow: inset 0 0 0 5px black;
+  box-shadow: inset 0 0 0 2px black;
 }
 .auth__form > button {
   flex: 1;

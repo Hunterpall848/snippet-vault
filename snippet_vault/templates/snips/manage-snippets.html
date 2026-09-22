@@ -17,13 +17,12 @@
     {% block title %}  vault {% endblock %}
 
     {% block nav %}
-        <a href="/">build snippet</a> | 
+        <a href="/">build snippet</a>
         <a href="{{ url_for('snippets.snip_api') }}">raw snippet data</a>
     {% endblock %}
 
     {% block header %}
         <img src="{{ url_for('static', filename='images/manager-title.png') }}" alt="Snippet Vault">
-        <h5>▂▃▅▆▇▉ {{ g.user['username'] }}</h5>
     {% endblock %}
 
     {% block main %}

@@ -32,7 +32,7 @@ export class ManageUi {
 
         if (validationCheck) {
             const currentSnip = this.snippetStore.getCurrentSnippet();
-            this.showSnippetJson(currentSnip)
+            this.displayCurrentSnip(currentSnip)
             return;
         };
 
@@ -55,6 +55,9 @@ export class ManageUi {
         return formPayload;
     };
 
+    /**
+     * reformats the snippet into  ideal snippet structure
+     */
     reformatSnippet(currentSnip) {
         let snippetTitle = currentSnip.title;
         let snippetBody = {
@@ -65,27 +68,54 @@ export class ManageUi {
         let formattedSnippet = {[snippetTitle]: snippetBody};
         return formattedSnippet;
     };
+    
+    /**
+     * displays the selected snippet in the viewable snippet card area
+     */
+    displayCurrentSnip(currentSnip) {
+        //makes sure each newline starts at the right place
+        const bodyIndent = " ".repeat('    "body": "'.length);
 
-    showSnippetJson(currentSnip) {
         const formattedSnippet = this.reformatSnippet(currentSnip);
+        const snippetEntry = JSON.stringify(formattedSnippet, null, 2)
+            .slice(1, -1)
+            .trim();
 
         this.elements.displayTitle.textContent = Object.keys(formattedSnippet)[0];
         this.elements.displayPrefix.textContent = currentSnip.prefix;
-        this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
+
+        // creates actual line breaks for displaying the snippet to the user
+        this.elements.displayBody.textContent =
+            snippetEntry.replaceAll("\\n", "\\n\n" + bodyIndent);
+        //seperate object for the actual copy button without the extra \n
+        this.elements.displayBody.dataset.copyText = snippetEntry;
 
         this.showCardState("snippet");
     };
 
-    ShowFormJson(form = this.elements.form) {
+    /**
+     * displays the live form contents in the viewable snippet card area
+     */
+    displayLiveSnip(form = this.elements.form) {
+        const bodyIndent = " ".repeat('    "body": "'.length);
+
         const draftSnippet = this.grabFormData(form);
         draftSnippet.body = this.snipBodyEditor.decodeText();
         const formattedSnippet = this.reformatSnippet(draftSnippet);
+        const snippetEntry = JSON.stringify(formattedSnippet, null, 2)
+            .slice(1, -1)
+            .trim();
 
         if (this.elements.displayTitle) {
             this.elements.displayTitle.textContent = draftSnippet.title;
             this.elements.displayPrefix.textContent = draftSnippet.prefix;
         };
-        this.elements.displayBody.textContent = JSON.stringify(formattedSnippet, null, 2);
+        // creates actual line breaks for displaying the snippet to the user
+        this.elements.displayBody.textContent =
+            snippetEntry.replaceAll("\\n", "\\n\n" + bodyIndent);
+
+        //seperate object for the actual copy button without the extra \n
+        this.elements.displayBody.dataset.copyText = snippetEntry;
         this.elements.displayCard.hidden = false;
     };
 
@@ -110,7 +140,7 @@ export class ManageUi {
             return;
         };
 
-        this.showSnippetJson(currentSnip);
+        this.displayCurrentSnip(currentSnip);
     }
 
     handleUrlParsing() {
@@ -264,7 +294,7 @@ export class HandleEvents {
                 return;
             };
 
-            this.manageUi.showSnippetJson(nextSnippet);
+            this.manageUi.displayCurrentSnip(nextSnippet);
         });
     };
 
@@ -275,7 +305,7 @@ export class HandleEvents {
                 return;
             };
 
-            this.manageUi.showSnippetJson(previousSnippet);
+            this.manageUi.displayCurrentSnip(previousSnippet);
         });
     };
 
@@ -311,7 +341,7 @@ export class HandleEvents {
             const currentSnip = this.snippetStore.getCurrentSnippet();
             this.elements.editForm.hidden = true;
 
-            this.manageUi.showSnippetJson(currentSnip);
+            this.manageUi.displayCurrentSnip(currentSnip);
 
             this.elements.textArea.value = currentSnip.body;
             this.snipBodyEditor.renderPreview();
@@ -328,7 +358,7 @@ export class HandleEvents {
         this.elements.closeEditButton.addEventListener("click", () => {
             this.elements.editForm.hidden = true;
             const savedSnippet = this.snippetStore.getCurrentSnippet();
-            this.manageUi.showSnippetJson(savedSnippet);
+            this.manageUi.displayCurrentSnip(savedSnippet);
             this.elements.textArea.value = savedSnippet.body;
             this.snipBodyEditor.renderPreview();
 
@@ -351,7 +381,7 @@ export class HandleEvents {
     copyJsonButton() {
         this.elements.copyButton.addEventListener("click", async() => {
             try {
-                const toCopy = this.elements.displayBody.textContent;
+                const toCopy = this.elements.displayBody.dataset.copyText;
                 await navigator.clipboard.writeText(toCopy);
                 this.elements.copyButton.textContent = "Copied";
                 setTimeout(() => {
@@ -398,7 +428,7 @@ export class HandleEvents {
                 formPayload
             );
 
-            this.manageUi.ShowFormJson();
+            this.manageUi.displayLiveSnip();
             this.snipBodyEditor.renderPreview();
 
             this.elements.form.reset()
@@ -413,7 +443,7 @@ export class HandleEvents {
 
     liveSnippetDisplay(form) {
         form.addEventListener("input", () => {
-            this.manageUi.ShowFormJson(form);
+            this.manageUi.displayLiveSnip(form);
         });
     };
 

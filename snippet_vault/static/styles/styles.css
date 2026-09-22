@@ -188,10 +188,10 @@ header > img{
 .auth__form > button{
   box-shadow: 4px 4px 0 #3a393b;
 }
-.snippetform__button:hover,
-.snippetcard__actions > button:hover,
-.snippetform__actions > button:hover,
-.auth__form > button:hover{
+.snippetform__button:hover:not(:disabled),
+.snippetcard__actions > button:hover:not(:disabled),
+.snippetform__actions > button:hover:not(:disabled),
+.auth__form > button:hover:not(:disabled) {
   transform: translate(4px, 4px);
   box-shadow: 0 0 0 #3a393b;
 }
@@ -249,8 +249,6 @@ header > img{
   background: #bebac2;
   box-shadow: 0 0 0 black;
   transform: translateY(3px)
-  
-  
 }
 
 .content__upper--grid > .snippetcard__langbuttons {
@@ -315,7 +313,6 @@ header > img{
   transform: translate(3px, 3px);
   box-shadow: 0 0 0 #3a393b;
 }
-
 .snippetcard__heading {
   display: flex;
   gap: 10px;

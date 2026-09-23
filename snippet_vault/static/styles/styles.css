@@ -117,10 +117,6 @@ header > img{
   flex: 1 1 0;
   min-width: 0;
 }
-.snippetform--compact {
-  grid-column: 1 / 3;
-  grid-row: 3;
-}
 .snippetcard,
 .snippetpreview,
 .snippetform{
@@ -130,6 +126,11 @@ header > img{
   max-width: 100%;
   overflow-x: auto;
   border: 3px solid black;
+}
+.snippetform--compact {
+  grid-column: 1 / 3;
+  grid-row: 3;
+  background-color: #9f95a6;
 }
 .snippetcard__emptystate:not([hidden]) {
   display: flex;
@@ -150,7 +151,7 @@ header > img{
 .snippetpreview > pre,
 .snippetpreview > h4 {
   text-align: left;
-  padding: 20px;
+  padding: 20px 15px 20px;
   tab-size: 4;
 }
 .snippetcard__actions,
@@ -231,12 +232,16 @@ header > img{
 }
 .snippetcard__snipbuttons > select {
   flex: 1;
+  font-size: 16px;
+  padding: 10px 10px 5px;
+  margin-top: 3px;
+  border-bottom: 0.75px solid black;
+  box-shadow: 0 3px 0 black;
 }
 .snippetcard__snipbuttons > select > option {
   font-size: 16px;
   padding: 10px 10px 5px;
   margin-top: 3px;
-  border-radius: 1;
   border-bottom: 0.75px solid black;
   box-shadow: 0 3px 0 black;
   

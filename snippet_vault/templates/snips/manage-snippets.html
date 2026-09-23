@@ -50,16 +50,16 @@
                    <button type="button" id="prev">previous</button>
                    <button type="button" id="next">next</button>
                    <button type="button" id="copy-json">copy</button>
-                   <button type="button" id="edit-snippet" >edit</button>
+                   <button type="button" id="edit-snippet">edit</button>
                 </div>
             </div>
         </main> 
 
-        <div class="snippetcard__langbuttons">
-            <div id="language-button-list" class="buttonmenu__langbuttons"></div>
+        <div class="langbuttons">
+            <div id="language-button-list" class="langbuttons__buttons"></div>
         </div>
 
-        <div class="snippetcard__snipbuttons">
+        <div class="snipbuttons">
             <select id="snippet-menu" size="8" hidden></select>
         </div>
     {% endblock %}
@@ -72,7 +72,9 @@
     {% endblock %}
 
     {% block form %}
-        <form id="snip-form" class="snippetform snippetform--compact" hidden>
+    <div class="snippetform snippetform--compact">
+        <form id="snip-form" class="snippetform__form">
+
             {{ snippet_form(langs, 'compact') }} 
 
             <div class="snippetform__actions">
@@ -88,6 +90,7 @@
             </div>
 
         </form>
+    </div>
     {% endblock %}
 
 

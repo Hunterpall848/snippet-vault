@@ -18,6 +18,7 @@ const manageSnipsElements = {
     displayTitle: document.querySelector("#display-title"),
     displayPrefix: document.querySelector("#display-prefix"),
     displayBody: document.querySelector("#display-body"),
+    editFormContainer: document.querySelector(".snippetform--compact"),
     editForm: document.querySelector("#snip-form"),
 
     languageButtonList: document.querySelector("#language-button-list"),

@@ -175,7 +175,6 @@ export class ManageUi {
         prefixInput.value = editingSnippet.prefix;
         bodyInput.value = editingSnippet.body;
         descriptionInput.value = editingSnippet.description || "";
-        this.elements.editForm.hidden = false;
     };
 
     changeCurrentSnippet (change) {
@@ -204,6 +203,41 @@ export class ManageUi {
              element.textContent = "";
          });
         return;
+    };
+
+    /**
+     * Provides keyframe animations for dropdown styled elements
+     * @param {"show" | "hide"} direction - accepts "show" or "hide" as arguments
+     */
+    dropdownAnimation(direction) {
+        let animationDirection;
+
+        if (direction === "show") {
+            animationDirection = [
+                {gridTemplateRows: "0fr"},
+                {gridTemplateRows: "1fr"}
+            ]
+        } else if (direction == "hide") {
+            animationDirection = [
+                {gridTemplateRows: "1fr"},
+                {gridTemplateRows: "0fr"}
+            ]
+        } else {
+            throw new TypeError(
+                'dropdownAnimation requires "show" or "hide".'
+            );
+        };
+
+        const animationOpts =  {
+                duration: 750,
+                easing: "ease-out",
+                fill: "forwards"
+        }
+
+        return {
+            keyframes: animationDirection,
+            options: animationOpts
+        }
     };
 }
 
@@ -351,27 +385,37 @@ export class HandleEvents {
     editButton() {
         this.elements.editButton.addEventListener("click", async() => {
             this.manageUi.updateEditForm();
+
+            const animation = this.manageUi.dropdownAnimation("show")
+
+            this.elements.editFormContainer.style.setProperty('display','grid')
+            this.elements.editFormContainer.animate(animation.keyframes, animation.options)
         });
     };
 
     closeEditButton() {
-        this.elements.closeEditButton.addEventListener("click", () => {
-            this.elements.editForm.hidden = true;
+        this.elements.closeEditButton.addEventListener("click", async() => {
+            const animation = this.manageUi.dropdownAnimation("hide")
             const savedSnippet = this.snippetStore.getCurrentSnippet();
+
+            const runningAnimation = 
+                this.elements.editFormContainer.animate(animation.keyframes, animation.options)
+            await runningAnimation.finished;
+
             this.manageUi.displayCurrentSnip(savedSnippet);
             this.elements.textArea.value = savedSnippet.body;
             this.snipBodyEditor.renderPreview();
 
-            this.manageUi.clearText([this.elements.previewArea, this.elements.displayBody]);
+            this.elements.editFormContainer.style.setProperty('display','none')
         });
     };
     
     deleteButton() {
         this.elements.deleteButton.addEventListener("click", async() => {
             this.snippetStore.deleteSnip();
-            this.elements.editForm.hidden = true;
-            this.snippetStore.refreshSnips();
+            this.elements.editFormContainer.style.setProperty('display','none')
 
+            this.snippetStore.refreshSnips();
             this.manageUi.updatePageState();
 
             this.manageUi.clearText([this.elements.previewArea, this.elements.displayBody])
@@ -410,7 +454,7 @@ export class HandleEvents {
                 return;
             };
 
-            this.elements.editForm.hidden = true;
+            this.elements.editFormContainer.style.setProperty('display','none')
             this.elements.snippetMenu.hidden = true;
             await this.manageUi.updatePageState(editedSnipId);
         });

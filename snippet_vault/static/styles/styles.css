@@ -252,10 +252,11 @@ header > img{
 }
 .snipbuttons > select > option {
   font-size: 16px;
-  padding: 10px 10px 5px;
-  margin-top: 3px;
+  padding: 6px 10px 5px;
+  margin-top: 6px;
   border-bottom: 0.75px solid black;
   box-shadow: 0 3px 0 black;
+  background-color: #ced1eb;
   
   transition:
     transform 100ms ease,

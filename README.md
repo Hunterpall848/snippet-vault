@@ -44,5 +44,5 @@ The syntax rules recognized in code snippets:
 Creates a placeholder for a ***variable*** snippet value. In snippet vault, highlight a text selection and press the ***newly visible button*** to create a placeholder. The placeholder number should increment relatively.
 
 ###### ${0} 
-This tells the cursor where it should it's ***final place should be*** once all placeholders have been filled in when using a snippet in your code.
+This tells the cursor where it's ***final place should be*** once all placeholders have been filled in when using a snippet in your code.
 
